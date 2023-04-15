@@ -1,15 +1,26 @@
-lista_comprimentos=[10,10,10]
-lista_reações=[1,1,2,1]
-carga_q=1
-lista_L_acumulados = []
-for i in range (0,len(lista_comprimentos)):
-    if i ==0:
-        comprimento_acumulado=0
-    else:
-        comprimento_acumulado = comprimento_acumulado + lista_comprimentos[i]
-    lista_L_acumulados.append(comprimento_acumulado)
-
-lista_eq_LE=[]
+class Vigahiperestatica:
+    def __init__(self, lista_comprimentos =None, carga_q = None, lista_reacoes = None):
+        self.lista_comprimentos = lista_comprimentos
+        self.carga_q = carga_q
+        self.lista_reacoes = lista_reacoes
+class Calcula_momentos_por_trecho:
+    def __init__(self,viga):
+        self.viga = viga
+        self.x_acumulado = None
+        self.lista_L_acumulados = None
+        self.comprimento_acumulado = None
+        self.termo_inde_acumulado = None
+        self.lista_eq_momento = None
+    def calcula_documentos_acumulados(self):
+        self.lista_L_acumulados = []
+        for i in range (0,len(self.viga.lista_comprimentos)):
+            if i ==0:
+                self.comprimento_acumulado=0
+            else:
+                self.comprimento_acumulado = self.comprimento_acumulado + self.viga.lista_comprimentos[i]
+        self.lista_L_acumulados.append(self.comprimento_acumulado)
+    def gera_equacoes_momentos_por_trecho(self):
+        lista_eq_LE=[]
 L = 0
 V = len(lista_comprimentos)-1
 for i in range(len(lista_comprimentos),0,-1 ):
@@ -19,7 +30,7 @@ for i in range(len(lista_comprimentos),0,-1 ):
     print(f'------------------{i}')
     k = 0
     for j in range(L, len(lista_comprimentos)):
-        if j==0 and i==1:
+        if j==0 and i == 1:
             print(lista_reações[k])
             #termo_inde = lista_reações[k] * lista_L_acumulados[0]
         else:
@@ -45,4 +56,4 @@ for i in range(len(lista_comprimentos),0,-1 ):
     LE.append(x_2)
     lista_eq_LE.append(LE)
 
-print(lista_eq_LE)
+if __name__== '__main__':
