@@ -246,9 +246,8 @@ class Contexto:
 
 
 if __name__== '__main__':
-    viga = Vigahiperestatica(lista_comprimentos=[10,10,10,10],carga_q=1
-
-    )
+    # O USUÁRIO VAI ENTRAR COM OS COMPRIMENTOS DE CADA TRECHO E O VALOR DA CARGA DISTRIBUÍDA
+    viga = Vigahiperestatica(lista_comprimentos=[10,10,10,10],carga_q=1)
     contexto = Contexto(viga)
     contexto.apply()
 
