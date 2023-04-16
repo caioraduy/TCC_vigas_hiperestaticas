@@ -84,6 +84,7 @@ class Eq3momentos(Vigahiperestatica):
         self.matriz_incognitas_quadrada = None
         self.matriz_incognitas = None
         self.lista_momentos = None
+        self.lista_reacoes = None
 
         Vigahiperestatica.__init__(self, viga)
     def gera_matriz_cheia_de_zeros(self):
@@ -159,8 +160,8 @@ class Eq3momentos(Vigahiperestatica):
                 #print(Mi_anterior)
                 #print(Mi)
             #calcula o termo independete e adiciona em uma matriz
-            termo_inde = -6 * (self.viga.carga_q*self.viga.lista_comprimentos[i])/24 -\
-                         6* (self.viga.carga_q*self.viga.lista_comprimentos[i+1])/24
+            termo_inde = -6 * (self.viga.carga_q*self.viga.lista_comprimentos[i]**3)/24 -\
+                         6* (self.viga.carga_q*self.viga.lista_comprimentos[i+1]**3)/24
             lista_termo_ind.append(termo_inde)
             self.matriz_termo_inde.append(lista_termo_ind)
             # adiciona os 'Momentos" na matriz de acordo com o indice
@@ -171,9 +172,55 @@ class Eq3momentos(Vigahiperestatica):
         self.resolve_sistema_equacoes()
         print(self.Resultados_momentos)
         self.gera_lista_momentos()
+        self.calcula_reacoes_apoio()
 
     def calcula_reacoes_apoio(self):
-        pass
+        lista_reacoes =[]
+        matriz_reacoes =[]
+        for i in range( 0,len(self.viga.lista_comprimentos)):
+            lista_reacoes_esquerda_direita =[]
+            parcela_carga = self.viga.carga_q * self.viga.lista_comprimentos[i]*self.viga.lista_comprimentos[i]/2
+            parcela_momento_i = self.lista_momentos[i]
+            parcela_momento_i_mais1 = -1*self.lista_momentos[i+1]
+            Ri_mais1 = (parcela_carga + parcela_momento_i +parcela_momento_i_mais1)/self.viga.lista_comprimentos[i]
+            Ri = self.viga.carga_q*self.viga.lista_comprimentos[i] - Ri_mais1
+            lista_reacoes_esquerda_direita.append(Ri)
+            lista_reacoes_esquerda_direita.append(Ri_mais1)
+            matriz_reacoes.append(lista_reacoes_esquerda_direita)
+        print(matriz_reacoes)
+        print(len(matriz_reacoes))
+        for i in range(0, len(matriz_reacoes)-1):
+            if i == 0 and len(self.viga.lista_comprimentos) >2:
+                r_acumulado_i = matriz_reacoes[i][0]
+                r_acumulado_i_mais_1 = matriz_reacoes[i][1] + matriz_reacoes[i + 1][0]
+                lista_reacoes.append(r_acumulado_i)
+                lista_reacoes.append(r_acumulado_i_mais_1)
+            elif i == len(matriz_reacoes)-1:
+                r_acumulado_i_mais_1 = matriz_reacoes[i][1]
+                lista_reacoes.append(r_acumulado_i_mais_1)
+            elif  i == 0 and len(self.viga.lista_comprimentos) == 2:
+                r_acumulado_i_menos_1 = matriz_reacoes[i][0]
+                r_acumulado_i = matriz_reacoes[i][1] + matriz_reacoes[i + 1][0]
+                r_acumulado_i_mais_1 = matriz_reacoes[i+1][0]
+                lista_reacoes.append(r_acumulado_i_menos_1)
+                lista_reacoes.append(r_acumulado_i)
+                lista_reacoes.append(r_acumulado_i_mais_1)
+
+            else:
+                r_acumulado_i = matriz_reacoes[i][1]+ matriz_reacoes[i+1][0]
+                lista_reacoes.append(r_acumulado_i)
+
+
+        print( 'xxxxxxxx', lista_reacoes)
+
+
+
+
+
+
+
+
+
 
 
 
@@ -196,7 +243,7 @@ class Contexto:
         reações.apply()
 
 if __name__== '__main__':
-    viga = Vigahiperestatica(lista_comprimentos=[10,10,10],carga_q=1
+    viga = Vigahiperestatica(lista_comprimentos=[10,10],carga_q=1
                              ,lista_reações=[1,1,2,1]
     )
     contexto = Contexto(viga)
