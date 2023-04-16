@@ -125,6 +125,7 @@ class Eq3momentos(Vigahiperestatica):
             self.lista_momentos.append(self.Resultados_momentos[i][0])
         self.lista_momentos.insert(0,0)
         self.lista_momentos.insert(len(self.viga.lista_comprimentos),0)
+        print(f'O vetor que representa os momentos nos apoios é: {self.lista_momentos}')
 
 
     def equacao_3_momentos(self):
@@ -172,7 +173,6 @@ class Eq3momentos(Vigahiperestatica):
         self.gera_matriz_quadrada()
         #resolve o sistema de equações
         self.resolve_sistema_equacoes()
-        print(f' Os momentos nos apoios são: {self.Resultados_momentos}')
         self.gera_lista_momentos()
         self.calcula_reacoes_apoio()
 
