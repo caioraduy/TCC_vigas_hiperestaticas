@@ -173,6 +173,7 @@ class Eq3momentos(Vigahiperestatica):
         self.gera_lista_momentos()
 
     def calcula_reacoes_apoio(self):
+        pass
 
 
 
