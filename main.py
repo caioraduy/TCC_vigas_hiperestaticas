@@ -19,14 +19,9 @@ for i in range(len(lista_comprimentos),0,-1 ):
     print(f'------------------{i}')
     k = 0
     for j in range(L, len(lista_comprimentos)):
-        if j==0 and i==1:
-            print(lista_reações[k])
-            #termo_inde = lista_reações[k] * lista_L_acumulados[0]
-        else:
-            print(lista_reações[k])
-            print(lista_L_acumulados[-j-1])
 
-            termo_inde =lista_reações[k]*lista_L_acumulados[-j-1]
+
+        termo_inde =lista_reações[k]*lista_L_acumulados[-j-1]
 
 
         x = lista_reações[k]
