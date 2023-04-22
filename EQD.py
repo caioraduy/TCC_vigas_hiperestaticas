@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 class Vigahiperestatica:
     def __init__(self, lista_comprimentos =None, carga_q = None, lista_reações = None):
         self.lista_comprimentos = lista_comprimentos
@@ -12,6 +13,9 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
         self.comprimento_acumulado = None
         self.termo_inde_acumulado = None
         self.lista_eq_momento = None
+        self.scatter_x = []
+        self.scatter_y_momento = []
+        self.scatter_y_cortante = []
         Vigahiperestatica.__init__(self, viga)
     def calcula_comprimentos_acumulados(self):
         self.lista_L_acumulados = []
@@ -61,9 +65,31 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             self.lista_eq_LE.append(LE)
         print("Os polinômios que representam a equação dos momentos por trecho são")
         print("(do último para o primeiro trecho):",self.lista_eq_LE)
+    def gera_diagrama_momento_fletor(self):
+        print(self.viga)
+        for i in range(len(self.viga.lista_comprimentos)-1,-1,-1):
+            print('------------', i)
+            print(self.lista_L_acumulados)
+            print(self.lista_eq_LE[i])
+            for j in range(0, self.viga.lista_comprimentos[i]+1):
+                print(j)
+                momento_fletor = self.lista_eq_LE[i][0] + self.lista_eq_LE[i][1]*j +self.lista_eq_LE[i][2]*(j**2)
+                cortante = self.lista_eq_LE[i][1] + self.lista_eq_LE[i][2]*2*j
+                j = j + self.lista_L_acumulados[-i-1]
+                self.scatter_x.append(j)
+                self.scatter_y_momento.append(momento_fletor)
+                self.scatter_y_cortante.append(cortante)
+        plt.plot(self.scatter_x, self.scatter_y_momento)
+        plt.plot()
+        plt.show()
+        plt.plot(self.scatter_x, self.scatter_y_cortante)
+        plt.plot()
+        plt.show()
+
     def apply(self):
         self.calcula_comprimentos_acumulados()
         self.gera_equacoes_momentos_por_trecho()
+        self.gera_diagrama_momento_fletor()
 class Eq3momentos(Vigahiperestatica):
     def __init__(self,viga):
         self.viga= viga
