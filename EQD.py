@@ -286,8 +286,10 @@ class Diferencas_finitas(Vigahiperestatica):
         Vigahiperestatica.__init__(self, viga)
     def gera_linha_cheia_de_zeros(self):
         self.linha_vazia =[]
-        for i in range(0, int((1/self.passo +1))*len(self.viga.lista_comprimentos)):
+        c=int((1/self.passo)*len(self.viga.lista_comprimentos)) + 1
+        for i in range(0, c):
             self.linha_vazia.append(0)
+        print(len(self.linha_vazia))
 
     def resolve_sistema_para_descobrir_deformaçao_nos_pontos(self):
         print(self.matriz_segunda_derivada)
@@ -308,33 +310,48 @@ class Diferencas_finitas(Vigahiperestatica):
 
         for x in range(0,len(self.viga.lista_eq_momento_por_trecho)):
             x_atual = self.viga.lista_comprimentos_acumulados_viga[x]
+            if x == 0:
+                início = 0
+            else:
+                início =1
 
 
-            for y in range (0, i):
+            for y in range (início, i):
 
-                print(y)
+                #print(y)
                 #calcula o momento no ponto
 
                 momento_no_ponto = ((self.viga.lista_eq_momento_por_trecho[x][0] +self.viga.lista_eq_momento_por_trecho[x][1]*x_atual
                                      +self.viga.lista_eq_momento_por_trecho[x][2]*x_atual**2) * self.passo**2)/(self.viga.Ecs * self.viga.I)
                 self.gera_linha_cheia_de_zeros()
                 if y == 0 and x == 0:
-                    self.linha_vazia[indice+1] = -2
+                    pass
                 elif y ==0 and x !=0:
                     self.linha_vazia[indice + 1] = 1
                     self.linha_vazia[indice - 1] = 1
 
                 elif y == i-1 and x != (len(self.viga.lista_eq_momento_por_trecho)-1):
                     self.linha_vazia[indice-1] = 1
-                    print(indice)
+                    #print(indice)
                     self.linha_vazia[indice + 1] = 1
                 elif y == i-1 and x == (len(self.viga.lista_eq_momento_por_trecho)-1):
-                    self.linha_vazia[indice] = -2
+                    pass
                 elif y == 1 and int((1/self.passo) +1) == 3:
 
                     self.linha_vazia[indice] = -2
-                else:
+                elif y == i -1:
+                    self.linha_vazia[indice] = 2
+                    self.linha_vazia[indice - 1] = 1
+                elif y == 1 and x==0:
+                    self.linha_vazia[indice] = 2
+                    self.linha_vazia[indice + 1] = 1
 
+
+                else:
+                    print('----------------')
+                    print(indice)
+                    print(y-1)
+                    print(x)
                     self.linha_vazia[indice + 1] = 1
                     self.linha_vazia[indice - 1] = 1
                     self.linha_vazia[indice] = -2
@@ -347,9 +364,10 @@ class Diferencas_finitas(Vigahiperestatica):
 
 
         self.resolve_sistema_para_descobrir_deformaçao_nos_pontos()
-        for i in range(0, len(self.deflexoes)):
-            self.deflexoes.append(self.resultados_deformação[i][0])
         print(self.resultados_deformação)
+
+        print(self.resultados_deformação)
+
 
 
 
