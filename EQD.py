@@ -1,10 +1,29 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import math
 class Vigahiperestatica:
-    def __init__(self, lista_comprimentos =None, carga_q = None, lista_reações = None):
+    def __init__(self, lista_comprimentos =None, carga_q = None, lista_reações = None, b = None, h= None, fck= None):
+        self.b = b
+        self.h = h
         self.lista_comprimentos = lista_comprimentos
         self.carga_q = carga_q
         self.lista_reações = lista_reações
+        self.lista_eq_momento_por_trecho = None
+        self.lista_comprimentos_acumulados_viga = None
+        self.Ecs = 0
+        self.fck = 30
+        self.I = None
+    def calcula_momento_de_inercia(self):
+        I = (self.b * (self.h **3) )/ 12
+        self.I = I
+    def calculo_modulo_elasticidade(self):
+        # de 20 até 50 MPa
+        Eci = 0.9 * 5600 * math.sqrt(self.fck)
+        alfa =  0.8 + 0.2 * self.fck/80
+        self.Ecs = Eci * alfa
+    def apply(self):
+        self.calcula_momento_de_inercia()
+        self.calculo_modulo_elasticidade()
 class Calcula_momentos_por_trecho(Vigahiperestatica):
     def __init__(self,viga):
         self.viga = viga
@@ -26,6 +45,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             else:
                 self.comprimento_acumulado = self.comprimento_acumulado + self.viga.lista_comprimentos[i]
             self.lista_L_acumulados.append(self.comprimento_acumulado)
+        self.viga.lista_comprimentos_acumulados_viga = self.lista_L_acumulados
         #print(self.lista_L_acumulados)
     def gera_equacoes_momentos_por_trecho(self):
         self.lista_eq_LE=[]
@@ -63,16 +83,17 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             LE.append(self.x_acumulado)
             LE.append(x_2)
             self.lista_eq_LE.append(LE)
+        self.viga.lista_eq_momento_por_trecho = self.lista_eq_LE
         print("Os polinômios que representam a equação dos momentos por trecho são")
         print("(do último para o primeiro trecho):",self.lista_eq_LE)
     def gera_diagrama_momento_fletor(self):
-        print(self.viga)
+        #print(self.viga)
         for i in range(len(self.viga.lista_comprimentos)-1,-1,-1):
-            print('------------', i)
-            print(self.lista_L_acumulados)
-            print(self.lista_eq_LE[i])
+            #print('------------', i)
+            #print(self.lista_L_acumulados)
+            #print(self.lista_eq_LE[i])
             for j in range(0, self.viga.lista_comprimentos[i]+1):
-                print(j)
+                #(j)
                 momento_fletor = self.lista_eq_LE[i][0] + self.lista_eq_LE[i][1]*j +self.lista_eq_LE[i][2]*(j**2)
                 cortante = self.lista_eq_LE[i][1] + self.lista_eq_LE[i][2]*2*j
                 j = j + self.lista_L_acumulados[-i-1]
@@ -250,11 +271,95 @@ class Eq3momentos(Vigahiperestatica):
 
         print( f' O vetor com as reações de apoio da viga é: {self.lista_reacoes}')
 
-
-
-
     def apply(self):
         self.equacao_3_momentos()
+
+class Diferencas_finitas(Vigahiperestatica):
+    def __init__(self, viga):
+        self.viga = viga
+        self.passo = 0.2
+        self.matriz_segunda_derivada = None
+        self.matriz_momento_dividido_por_EI = None
+        self.resultados_deformação = None
+        self.deflexoes = []
+        self.eixo_x = None
+        Vigahiperestatica.__init__(self, viga)
+    def gera_linha_cheia_de_zeros(self):
+        self.linha_vazia =[]
+        for i in range(0, int((1/self.passo +1))*len(self.viga.lista_comprimentos)):
+            self.linha_vazia.append(0)
+
+    def resolve_sistema_para_descobrir_deformaçao_nos_pontos(self):
+        print(self.matriz_segunda_derivada)
+        print(self.matriz_momento_dividido_por_EI)
+        M = np.array(self.matriz_segunda_derivada)
+        C = np.array(self.matriz_momento_dividido_por_EI)
+        self.resultados_deformação = np.linalg.solve(M, C)
+
+    def metodo_das_diferencas_finitas_apoios(self):
+        # o número de iterações é o passo +1
+        i = int(1/self.passo +1)
+        self.eixo_x =[]
+
+        # faz o for em todos os trechos da viga
+        self.matriz_segunda_derivada = []
+        self.matriz_momento_dividido_por_EI = []
+        indice = 0
+
+        for x in range(0,len(self.viga.lista_eq_momento_por_trecho)):
+            x_atual = self.viga.lista_comprimentos_acumulados_viga[x]
+
+
+            for y in range (0, i):
+
+                print(y)
+                #calcula o momento no ponto
+
+                momento_no_ponto = ((self.viga.lista_eq_momento_por_trecho[x][0] +self.viga.lista_eq_momento_por_trecho[x][1]*x_atual
+                                     +self.viga.lista_eq_momento_por_trecho[x][2]*x_atual**2) * self.passo**2)/(self.viga.Ecs * self.viga.I)
+                self.gera_linha_cheia_de_zeros()
+                if y == 0 and x == 0:
+                    self.linha_vazia[indice+1] = -2
+                elif y ==0 and x !=0:
+                    self.linha_vazia[indice + 1] = 1
+                    self.linha_vazia[indice - 1] = 1
+
+                elif y == i-1 and x != (len(self.viga.lista_eq_momento_por_trecho)-1):
+                    self.linha_vazia[indice-1] = 1
+                    print(indice)
+                    self.linha_vazia[indice + 1] = 1
+                elif y == i-1 and x == (len(self.viga.lista_eq_momento_por_trecho)-1):
+                    self.linha_vazia[indice] = -2
+                elif y == 1 and int((1/self.passo) +1) == 3:
+
+                    self.linha_vazia[indice] = -2
+                else:
+
+                    self.linha_vazia[indice + 1] = 1
+                    self.linha_vazia[indice - 1] = 1
+                    self.linha_vazia[indice] = -2
+                indice = indice + 1
+                self.eixo_x.append(x_atual)
+
+
+                self.matriz_segunda_derivada.append(self.linha_vazia)
+                self.matriz_momento_dividido_por_EI.append(momento_no_ponto)
+
+
+        self.resolve_sistema_para_descobrir_deformaçao_nos_pontos()
+        for i in range(0, len(self.deflexoes)):
+            self.deflexoes.append(self.resultados_deformação[i][0])
+        print(self.resultados_deformação)
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -265,15 +370,20 @@ class Contexto:
     def __init__(self,viga):
         self.viga= viga
     def apply(self):
+        print(self.viga.I)
+        self.viga.apply()
         reações = Eq3momentos(self.viga)
         reações.apply()
         momentos = Calcula_momentos_por_trecho(self.viga)
         momentos.apply()
+        diferenças_finitas = Diferencas_finitas(self.viga)
+        diferenças_finitas.metodo_das_diferencas_finitas_apoios()
 
 
 if __name__== '__main__':
     # O USUÁRIO VAI ENTRAR COM OS COMPRIMENTOS DE CADA TRECHO E O VALOR DA CARGA DISTRIBUÍDA
-    viga = Vigahiperestatica(lista_comprimentos=[10,10,10,10],carga_q=1)
+    viga = Vigahiperestatica(lista_comprimentos=[10,10,10,10],carga_q=1, b= 0.2, h=0.3, fck = 30)
+    #print(viga.I)
     contexto = Contexto(viga)
     contexto.apply()
 
