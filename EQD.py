@@ -277,7 +277,7 @@ class Eq3momentos(Vigahiperestatica):
 class Diferencas_finitas(Vigahiperestatica):
     def __init__(self, viga):
         self.viga = viga
-        self.passo = 0.25
+        self.passo = 0.05
         self.matriz_segunda_derivada = None
         self.matriz_momento_dividido_por_EI = None
         self.resultados_deformação = None
@@ -338,6 +338,7 @@ class Diferencas_finitas(Vigahiperestatica):
                                      +self.viga.lista_eq_momento_por_trecho[EqM][2]*x_atual**2) * self.passo**2)/(self.viga.Ecs * self.viga.I)
                 print(momento_no_ponto)
                 self.gera_linha_cheia_de_zeros()
+                print(indice)
                 if indice+1 in lista_deslocamentos_igual_zero:
                     self.linha_vazia[indice + 1] = 0
                 else:
@@ -352,8 +353,10 @@ class Diferencas_finitas(Vigahiperestatica):
                     self.linha_vazia[indice-1] = 0
                 else:
                     self.linha_vazia[indice - 1] = 1
-
-                indice = indice + 1
+                if y == fim-1:
+                    indice = indice + 2
+                else:
+                    indice = indice + 1
                 self.eixo_x.append(eixo_x)
                 x_atual = x_atual + self.passo*self.viga.lista_comprimentos[x]
                 eixo_x = eixo_x + self.passo * self.viga.lista_comprimentos[x]
