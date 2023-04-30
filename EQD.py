@@ -307,7 +307,7 @@ class Diferencas_finitas(Vigahiperestatica):
         for i in range(1, len(self.viga.lista_comprimentos)+1):
             x = int(i/self.passo)
             lista_deslocamentos_igual_zero.append(x)
-        print(lista_deslocamentos_igual_zero)
+        #print(lista_deslocamentos_igual_zero)
         # faz o for em todos os trechos da viga
         self.matriz_segunda_derivada = []
         self.matriz_momento_dividido_por_EI = []
@@ -316,9 +316,13 @@ class Diferencas_finitas(Vigahiperestatica):
         EqM = len(self.viga.lista_eq_momento_por_trecho) - 1
         for x in range(0,len(self.viga.lista_eq_momento_por_trecho)):
             if x ==0:
-                x_atual = self.passo*self.viga.lista_comprimentos[x]
 
+                eixo_x = self.passo*self.viga.lista_comprimentos[x]
+            else:
 
+                eixo_x = x_atual + self.viga.lista_comprimentos[x]*self.passo
+
+            x_atual = self.passo * self.viga.lista_comprimentos[x]
             fim = int(1 / self.passo) -1
 
 
@@ -350,8 +354,10 @@ class Diferencas_finitas(Vigahiperestatica):
                     self.linha_vazia[indice - 1] = 1
 
                 indice = indice + 1
+                self.eixo_x.append(eixo_x)
                 x_atual = x_atual + self.passo*self.viga.lista_comprimentos[x]
-                self.eixo_x.append(x_atual)
+                eixo_x = eixo_x + self.passo * self.viga.lista_comprimentos[x]
+
 
 
                 self.matriz_segunda_derivada.append(self.linha_vazia)
@@ -361,20 +367,31 @@ class Diferencas_finitas(Vigahiperestatica):
         #print(lista_deslocamentos_igual_zero)
         for i in range(0, len(self.matriz_segunda_derivada)):
             for y in range(len(lista_deslocamentos_igual_zero)-1,-1, -1):
-                print(lista_deslocamentos_igual_zero[y])
+                #print(lista_deslocamentos_igual_zero[y])
                 #print('-----', lista_deslocamentos_igual_zero[y])
                 self.matriz_segunda_derivada[i].pop(lista_deslocamentos_igual_zero[y])
-        print(self.matriz_momento_dividido_por_EI)
-
-
-
 
         self.resolve_sistema_para_descobrir_deformaçao_nos_pontos()
+
         print(self.resultados_deformação)
+        lista_deflexoes = []
+        for i in range(0, len(self.resultados_deformação)):
+            lista_deflexoes.append(self.resultados_deformação[i])
 
-        #print(self.resultados_deformação)
+
+        for i in range(0, len(self.viga.lista_comprimentos)+1):
+            lista_deflexoes.append(0)
+            if i ==0:
+                posicao_apoio = 0
+            else:
+                posicao_apoio = posicao_apoio +self.viga.lista_comprimentos[i-1]
+            self.eixo_x.append(posicao_apoio)
 
 
+
+        plt.scatter(self.eixo_x, lista_deflexoes)
+        plt.plot()
+        plt.show()
 
 
 
