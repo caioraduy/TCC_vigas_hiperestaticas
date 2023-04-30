@@ -301,7 +301,7 @@ class Diferencas_finitas(Vigahiperestatica):
     def metodo_das_diferencas_finitas_apoios(self):
         # o número de iterações é o passo +1
         i = int(1/self.passo +1)
-        print(i)
+        #print(i)
         self.eixo_x =[]
         lista_deslocamentos_igual_zero = [0]
         for i in range(1, len(self.viga.lista_comprimentos)+1):
@@ -312,27 +312,27 @@ class Diferencas_finitas(Vigahiperestatica):
         self.matriz_segunda_derivada = []
         self.matriz_momento_dividido_por_EI = []
         indice = 1
-        print(self.viga.lista_comprimentos_acumulados_viga)
-
+        #print(self.viga.lista_comprimentos_acumulados_viga)
+        EqM = len(self.viga.lista_eq_momento_por_trecho) - 1
         for x in range(0,len(self.viga.lista_eq_momento_por_trecho)):
             if x ==0:
-                x_atual = 0
-            else:
-                x_atual = x_atual+self.viga.lista_comprimentos[x-1]
-            if x == 0:
-                fim = int(1 / self.passo)
-            else:
-                fim = int(1 / self.passo) -1
+                x_atual = self.passo*self.viga.lista_comprimentos[x]
 
+
+            fim = int(1 / self.passo) -1
 
 
             for y in range (0, fim):
+                print('--------------------------------------')
 
                 #calcula o momento no ponto
                 print(x_atual)
+                print(self.viga.lista_eq_momento_por_trecho[EqM])
 
-                momento_no_ponto = ((self.viga.lista_eq_momento_por_trecho[x][0] +self.viga.lista_eq_momento_por_trecho[x][1]*x_atual
-                                     +self.viga.lista_eq_momento_por_trecho[x][2]*x_atual**2) * self.passo**2)/(self.viga.Ecs * self.viga.I)
+
+                momento_no_ponto = ((self.viga.lista_eq_momento_por_trecho[EqM][0] +self.viga.lista_eq_momento_por_trecho[EqM][1]*x_atual
+                                     +self.viga.lista_eq_momento_por_trecho[EqM][2]*x_atual**2) * self.passo**2)/(self.viga.Ecs * self.viga.I)
+                print(momento_no_ponto)
                 self.gera_linha_cheia_de_zeros()
                 if indice+1 in lista_deslocamentos_igual_zero:
                     self.linha_vazia[indice + 1] = 0
@@ -356,13 +356,23 @@ class Diferencas_finitas(Vigahiperestatica):
 
                 self.matriz_segunda_derivada.append(self.linha_vazia)
                 self.matriz_momento_dividido_por_EI.append(momento_no_ponto)
+            EqM = EqM - 1
+        #print(self.matriz_segunda_derivada)
+        #print(lista_deslocamentos_igual_zero)
         for i in range(0, len(self.matriz_segunda_derivada)):
-            self.matriz_segunda_derivada[i].pop(-1)
-            self.matriz_segunda_derivada[i].pop(0)
+            for y in range(len(lista_deslocamentos_igual_zero)-1,-1, -1):
+                print(lista_deslocamentos_igual_zero[y])
+                #print('-----', lista_deslocamentos_igual_zero[y])
+                self.matriz_segunda_derivada[i].pop(lista_deslocamentos_igual_zero[y])
+        print(self.matriz_momento_dividido_por_EI)
+
+
+
+
         self.resolve_sistema_para_descobrir_deformaçao_nos_pontos()
         print(self.resultados_deformação)
 
-        print(self.resultados_deformação)
+        #print(self.resultados_deformação)
 
 
 
