@@ -277,7 +277,7 @@ class Eq3momentos(Vigahiperestatica):
 class Diferencas_finitas(Vigahiperestatica):
     def __init__(self, viga):
         self.viga = viga
-        self.passo = 0.2
+        self.passo = 0.25
         self.matriz_segunda_derivada = None
         self.matriz_momento_dividido_por_EI = None
         self.resultados_deformação = None
@@ -286,10 +286,10 @@ class Diferencas_finitas(Vigahiperestatica):
         Vigahiperestatica.__init__(self, viga)
     def gera_linha_cheia_de_zeros(self):
         self.linha_vazia =[]
-        c=int((1/self.passo)*len(self.viga.lista_comprimentos)) + 1
+        c=int(1/self.passo)*len(self.viga.lista_comprimentos)+1
         for i in range(0, c):
             self.linha_vazia.append(0)
-        print(len(self.linha_vazia))
+
 
     def resolve_sistema_para_descobrir_deformaçao_nos_pontos(self):
         print(self.matriz_segunda_derivada)
@@ -301,68 +301,64 @@ class Diferencas_finitas(Vigahiperestatica):
     def metodo_das_diferencas_finitas_apoios(self):
         # o número de iterações é o passo +1
         i = int(1/self.passo +1)
+        print(i)
         self.eixo_x =[]
-
+        lista_deslocamentos_igual_zero = [0]
+        for i in range(1, len(self.viga.lista_comprimentos)+1):
+            x = int(i/self.passo)
+            lista_deslocamentos_igual_zero.append(x)
+        print(lista_deslocamentos_igual_zero)
         # faz o for em todos os trechos da viga
         self.matriz_segunda_derivada = []
         self.matriz_momento_dividido_por_EI = []
-        indice = 0
+        indice = 1
+        print(self.viga.lista_comprimentos_acumulados_viga)
 
         for x in range(0,len(self.viga.lista_eq_momento_por_trecho)):
-            x_atual = self.viga.lista_comprimentos_acumulados_viga[x]
-            if x == 0:
-                início = 0
+            if x ==0:
+                x_atual = 0
             else:
-                início =1
+                x_atual = x_atual+self.viga.lista_comprimentos[x-1]
+            if x == 0:
+                fim = int(1 / self.passo)
+            else:
+                fim = int(1 / self.passo) -1
 
 
-            for y in range (início, i):
 
-                #print(y)
+            for y in range (0, fim):
+
                 #calcula o momento no ponto
+                print(x_atual)
 
                 momento_no_ponto = ((self.viga.lista_eq_momento_por_trecho[x][0] +self.viga.lista_eq_momento_por_trecho[x][1]*x_atual
                                      +self.viga.lista_eq_momento_por_trecho[x][2]*x_atual**2) * self.passo**2)/(self.viga.Ecs * self.viga.I)
                 self.gera_linha_cheia_de_zeros()
-                if y == 0 and x == 0:
-                    pass
-                elif y ==0 and x !=0:
-                    self.linha_vazia[indice + 1] = 1
-                    self.linha_vazia[indice - 1] = 1
-
-                elif y == i-1 and x != (len(self.viga.lista_eq_momento_por_trecho)-1):
-                    self.linha_vazia[indice-1] = 1
-                    #print(indice)
-                    self.linha_vazia[indice + 1] = 1
-                elif y == i-1 and x == (len(self.viga.lista_eq_momento_por_trecho)-1):
-                    pass
-                elif y == 1 and int((1/self.passo) +1) == 3:
-
-                    self.linha_vazia[indice] = -2
-                elif y == i -1:
-                    self.linha_vazia[indice] = 2
-                    self.linha_vazia[indice - 1] = 1
-                elif y == 1 and x==0:
-                    self.linha_vazia[indice] = 2
-                    self.linha_vazia[indice + 1] = 1
-
-
+                if indice+1 in lista_deslocamentos_igual_zero:
+                    self.linha_vazia[indice + 1] = 0
                 else:
-                    print('----------------')
-                    print(indice)
-                    print(y-1)
-                    print(x)
                     self.linha_vazia[indice + 1] = 1
-                    self.linha_vazia[indice - 1] = 1
+
+                if indice in lista_deslocamentos_igual_zero:
+                    self.linha_vazia[indice] = 0
+                else:
                     self.linha_vazia[indice] = -2
+
+                if indice-1 in lista_deslocamentos_igual_zero:
+                    self.linha_vazia[indice-1] = 0
+                else:
+                    self.linha_vazia[indice - 1] = 1
+
                 indice = indice + 1
+                x_atual = x_atual + self.passo*self.viga.lista_comprimentos[x]
                 self.eixo_x.append(x_atual)
 
 
                 self.matriz_segunda_derivada.append(self.linha_vazia)
                 self.matriz_momento_dividido_por_EI.append(momento_no_ponto)
-
-
+        for i in range(0, len(self.matriz_segunda_derivada)):
+            self.matriz_segunda_derivada[i].pop(-1)
+            self.matriz_segunda_derivada[i].pop(0)
         self.resolve_sistema_para_descobrir_deformaçao_nos_pontos()
         print(self.resultados_deformação)
 
@@ -400,7 +396,7 @@ class Contexto:
 
 if __name__== '__main__':
     # O USUÁRIO VAI ENTRAR COM OS COMPRIMENTOS DE CADA TRECHO E O VALOR DA CARGA DISTRIBUÍDA
-    viga = Vigahiperestatica(lista_comprimentos=[10,10,10,10],carga_q=1, b= 0.2, h=0.3, fck = 30)
+    viga = Vigahiperestatica(lista_comprimentos=[10,10],carga_q=1, b= 0.2, h=0.3, fck = 30)
     #print(viga.I)
     contexto = Contexto(viga)
     contexto.apply()
