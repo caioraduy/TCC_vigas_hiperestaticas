@@ -414,7 +414,7 @@ class Diferencas_finitas(Vigahiperestatica):
 
 
 
-
+  #XX
 
 
 
