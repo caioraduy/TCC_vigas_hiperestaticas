@@ -34,6 +34,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
         self.lista_eq_momento = None
         self.acumulado_l = None
         self.comprimento_acumulado_invertido = None
+        self.lista_comprimento_acumulado_vaos_meio = []
         self.lista_comprimento_acumulado_invertido = []
         self.scatter_x = []
         self.scatter_y_momento = []
@@ -66,16 +67,25 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
         print('xxxxxxx',self.acumulado_L)
 
         L= 0
-        for i in range (0,len(self.viga.lista_comprimentos)-1):
+        for i in range (0,len(self.viga.lista_comprimentos)):
             x = 0
-            for y in range (L,len(self.viga.lista_comprimentos)-1):
+            for y in range (L,len(self.viga.lista_comprimentos)):
                 #print(y)
                 x += self.viga.lista_comprimentos[y]
             L += 1
             self.lista_comprimento_acumulado_invertido.append(x)
+        print(self.lista_comprimento_acumulado_invertido)
+        L = len(self.viga.lista_comprimentos) - 1
+        for i in range(0, len(self.viga.lista_comprimentos) - 1):
+            x = 0
+            for y in range(0, L):
+                # print(y)
+                x += self.viga.lista_c5omprimentos[y]
+            L -= 1
+            self.lista_comprimento_acumulado_vaos_meio.append(x)
 
-
-        #print('xxx', self.lista_comprimento_acumulado_invertido)
+        print(self.lista_comprimento_acumulado_vaos_meio)
+        print('xxx', self.lista_comprimento_acumulado_invertido)
     def gera_equacoes_momentos_por_trecho(self):
         self.lista_eq_LE=[]
         L = 0
@@ -91,7 +101,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             self.x_acumulado = 0
             k = 0
             for j in range(L, len(self.viga.lista_comprimentos)):
-                #print('------------------------------------')
+                print('------------------------------------')
                 #combina a reação de apoio com o comprimento acumulado
                 if j==len(self.viga.lista_comprimentos)-1:
                     termo_inde =0
@@ -100,9 +110,13 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                     #print(self.viga.lista_comprimentos)
                     #print(j)
                     termo_inde = self.viga.lista_reações[k] * self.viga.lista_comprimentos[j-1]
+                if i > 0 and i < len(self.viga.lista_comprimentos)-1:
+                    termo_inde = self.viga.lista_reações[k] * self.lista_comprimento_acumulado_vaos_meio[j]
+
 
                 else:
-                    #print('o j é',j)
+                    print('o j é',j)
+                    print(self.lista_comprimento_acumulado_invertido[j])
                     termo_inde = self.viga.lista_reações[k] * self.lista_comprimento_acumulado_invertido[j]
                     #print(termo_inde)
                 #o x é a reação
@@ -504,7 +518,7 @@ class Contexto:
 
 if __name__== '__main__':
     # O USUÁRIO VAI ENTRAR COM OS COMPRIMENTOS DE CADA TRECHO E O VALOR DA CARGA DISTRIBUÍDA
-    viga = Vigahiperestatica(lista_comprimentos=[10,5,5],carga_q=1, b= 0.2, h=0.3, fck = 30)
+    viga = Vigahiperestatica(lista_comprimentos=[10,5,5,5],carga_q=1, b= 0.2, h=0.3, fck = 30)
     #print(viga.I)
     contexto = Contexto(viga)
     contexto.apply()
