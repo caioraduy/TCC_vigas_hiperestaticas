@@ -67,24 +67,26 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
         print('xxxxxxx',self.acumulado_L)
 
         L= 0
-        for i in range (0,len(self.viga.lista_comprimentos)):
+        for i in range (0,len(self.viga.lista_comprimentos)-1):
             x = 0
-            for y in range (L,len(self.viga.lista_comprimentos)):
+            for y in range (L,len(self.viga.lista_comprimentos)-1):
                 #print(y)
                 x += self.viga.lista_comprimentos[y]
             L += 1
             self.lista_comprimento_acumulado_invertido.append(x)
+        self.lista_comprimento_acumulado_invertido.append(0)
         print(self.lista_comprimento_acumulado_invertido)
-        L = len(self.viga.lista_comprimentos) - 1
-        for i in range(0, len(self.viga.lista_comprimentos) - 1):
+        L = len(self.viga.lista_comprimentos)
+        for i in range(0, len(self.viga.lista_comprimentos)):
             x = 0
             for y in range(0, L):
                 # print(y)
-                x += self.viga.lista_c5omprimentos[y]
+                x += self.viga.lista_comprimentos[y]
             L -= 1
             self.lista_comprimento_acumulado_vaos_meio.append(x)
+        self.lista_comprimento_acumulado_vaos_meio.append(0)
 
-        print(self.lista_comprimento_acumulado_vaos_meio)
+        print('tatu', self.lista_comprimento_acumulado_vaos_meio)
         print('xxx', self.lista_comprimento_acumulado_invertido)
     def gera_equacoes_momentos_por_trecho(self):
         self.lista_eq_LE=[]
@@ -93,6 +95,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
         x_acumulado = 0
         # for de traz para frente, começando no número de elementos da lista com os comprimentos
         for i in range(len(self.viga.lista_comprimentos),0,-1 ):
+            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXX')
             print(i)
             LE=[]
             #variável que acumula o termo independente
@@ -101,24 +104,23 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             self.x_acumulado = 0
             k = 0
             for j in range(L, len(self.viga.lista_comprimentos)):
-                print('------------------------------------')
+
                 #combina a reação de apoio com o comprimento acumulado
                 if j==len(self.viga.lista_comprimentos)-1:
                     termo_inde =0
-                elif  i ==2 and j==len(self.viga.lista_comprimentos)-2:
-                    #print('arroba')
-                    #print(self.viga.lista_comprimentos)
-                    #print(j)
-                    termo_inde = self.viga.lista_reações[k] * self.viga.lista_comprimentos[j-1]
-                if i > 0 and i < len(self.viga.lista_comprimentos)-1:
-                    termo_inde = self.viga.lista_reações[k] * self.lista_comprimento_acumulado_vaos_meio[j]
 
+                elif i > 0 and i < len(self.viga.lista_comprimentos):
+                    print(self.lista_comprimento_acumulado_vaos_meio)
+                    print('O comprimento é',self.lista_comprimento_acumulado_vaos_meio[j])
+                    print('O j é', j)
+                    termo_inde = self.viga.lista_reações[k] * self.lista_comprimento_acumulado_vaos_meio[j]
+                elif j ==len(self.viga.lista_comprimentos)-2:
+                    termo_inde = self.viga.lista_reações[k]
 
                 else:
-                    print('o j é',j)
-                    print(self.lista_comprimento_acumulado_invertido[j])
+
                     termo_inde = self.viga.lista_reações[k] * self.lista_comprimento_acumulado_invertido[j]
-                    #print(termo_inde)
+                print(termo_inde)
                 #o x é a reação
                 x = self.viga.lista_reações[k]
                 #acumula os valores
@@ -127,9 +129,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                 # aumenta o K para que no próxima iteração seja obtido o valor correto da reação
                 k=k+1
             #calcula o termo da carga
-            #print('-----------')
-            print(V)
-            #print(self.acumulado_L)
+
             termo_inde_carga = self.viga.carga_q * self.acumulado_L[V]**2/2
             x_carga = self.viga.carga_q * self.acumulado_L[V]
             x_2 = -self.viga.carga_q/2
