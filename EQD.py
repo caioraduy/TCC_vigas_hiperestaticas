@@ -32,27 +32,58 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
         self.comprimento_acumulado = None
         self.termo_inde_acumulado = None
         self.lista_eq_momento = None
+        self.acumulado_l = None
+        self.comprimento_acumulado_invertido = None
+        self.lista_comprimento_acumulado_invertido = []
         self.scatter_x = []
         self.scatter_y_momento = []
         self.scatter_y_cortante = []
         Vigahiperestatica.__init__(self, viga)
     def calcula_comprimentos_acumulados(self):
         self.lista_L_acumulados = []
-        #print(self.viga.lista_comprimentos)
-        for i in range (0,len(self.viga.lista_comprimentos)):
-            if i ==0:
-                self.comprimento_acumulado=0
+        self.acumulado_L=[]
+        for i in range(0, len(self.viga.lista_comprimentos)):
+            if i == 0:
+                self.comprimento_acumulado = 0
             else:
                 self.comprimento_acumulado = self.comprimento_acumulado + self.viga.lista_comprimentos[i]
             self.lista_L_acumulados.append(self.comprimento_acumulado)
         self.viga.lista_comprimentos_acumulados_viga = self.lista_L_acumulados
-        #print(self.lista_L_acumulados)
+        # print(self.lista_L_acumulados)
+
+
+        for i in range(0, len(self.viga.lista_comprimentos)+1):
+            acumulado = 0
+            for y in range(0,i):
+                #print('------------------')
+                #print(y)
+                #print(self.viga.lista_comprimentos[y])
+                acumulado = acumulado + self.viga.lista_comprimentos[y]
+            #print(acumulado)
+            self.acumulado_L.append(acumulado)
+
+
+        print('xxxxxxx',self.acumulado_L)
+
+        L= 0
+        for i in range (0,len(self.viga.lista_comprimentos)-1):
+            x = 0
+            for y in range (L,len(self.viga.lista_comprimentos)-1):
+                #print(y)
+                x += self.viga.lista_comprimentos[y]
+            L += 1
+            self.lista_comprimento_acumulado_invertido.append(x)
+
+
+        #print('xxx', self.lista_comprimento_acumulado_invertido)
     def gera_equacoes_momentos_por_trecho(self):
         self.lista_eq_LE=[]
         L = 0
         V = len(self.viga.lista_comprimentos)-1
+        x_acumulado = 0
         # for de traz para frente, começando no número de elementos da lista com os comprimentos
         for i in range(len(self.viga.lista_comprimentos),0,-1 ):
+            print(i)
             LE=[]
             #variável que acumula o termo independente
             self.termo_inde_acumulado = 0
@@ -60,8 +91,20 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             self.x_acumulado = 0
             k = 0
             for j in range(L, len(self.viga.lista_comprimentos)):
+                #print('------------------------------------')
                 #combina a reação de apoio com o comprimento acumulado
-                termo_inde =self.viga.lista_reações[k]*self.lista_L_acumulados[-j-1]
+                if j==len(self.viga.lista_comprimentos)-1:
+                    termo_inde =0
+                elif  i ==2 and j==len(self.viga.lista_comprimentos)-2:
+                    #print('arroba')
+                    #print(self.viga.lista_comprimentos)
+                    #print(j)
+                    termo_inde = self.viga.lista_reações[k] * self.viga.lista_comprimentos[j-1]
+
+                else:
+                    #print('o j é',j)
+                    termo_inde = self.viga.lista_reações[k] * self.lista_comprimento_acumulado_invertido[j]
+                    #print(termo_inde)
                 #o x é a reação
                 x = self.viga.lista_reações[k]
                 #acumula os valores
@@ -70,15 +113,20 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                 # aumenta o K para que no próxima iteração seja obtido o valor correto da reação
                 k=k+1
             #calcula o termo da carga
-            termo_inde_carga = self.viga.carga_q * self.lista_L_acumulados[V]**2/2
-            x_carga = self.viga.carga_q * self.lista_L_acumulados[V]
+            #print('-----------')
+            print(V)
+            #print(self.acumulado_L)
+            termo_inde_carga = self.viga.carga_q * self.acumulado_L[V]**2/2
+            x_carga = self.viga.carga_q * self.acumulado_L[V]
             x_2 = -self.viga.carga_q/2
             # o L aumenta, cada vez o número de reações é maior
             L=L+1
             # o V diminui para combinar a maior reação com o menor valor de comprimento acumulado
             V=V-1
+            #print('O termo iden', self.termo_inde_acumulado)
             self.x_acumulado -= x_carga
             self.termo_inde_acumulado -= termo_inde_carga
+            #print('O termo independ',self.termo_inde_acumulado )
             LE.append(self.termo_inde_acumulado)
             LE.append(self.x_acumulado)
             LE.append(x_2)
@@ -87,19 +135,24 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
         print("Os polinômios que representam a equação dos momentos por trecho são")
         print("(do último para o primeiro trecho):",self.lista_eq_LE)
     def gera_diagrama_momento_fletor(self):
-        #print(self.viga)
+
+
+        EqM = 0
+
         for i in range(len(self.viga.lista_comprimentos)-1,-1,-1):
-            #print('------------', i)
-            #print(self.lista_L_acumulados)
-            #print(self.lista_eq_LE[i])
-            for j in range(0, self.viga.lista_comprimentos[i]+1):
-                #(j)
+            for j in range(0, (self.viga.lista_comprimentos[EqM]+1)):
+
                 momento_fletor = self.lista_eq_LE[i][0] + self.lista_eq_LE[i][1]*j +self.lista_eq_LE[i][2]*(j**2)
                 cortante = self.lista_eq_LE[i][1] + self.lista_eq_LE[i][2]*2*j
-                j = j + self.lista_L_acumulados[-i-1]
+
+                j = j +self.acumulado_L[EqM]
+                #print(self.acumulado_L)
+                #print(j)
                 self.scatter_x.append(j)
                 self.scatter_y_momento.append(momento_fletor)
                 self.scatter_y_cortante.append(cortante)
+            EqM += 1
+        print(self.scatter_x)
         plt.plot(self.scatter_x, self.scatter_y_momento)
         plt.plot()
         plt.title('Momento fletor ao longo da viga ')
@@ -249,6 +302,7 @@ class Eq3momentos(Vigahiperestatica):
             lista_reacoes_esquerda_direita.append(Ri)
             lista_reacoes_esquerda_direita.append(Ri_mais1)
             self.matriz_reacoes.append(lista_reacoes_esquerda_direita)
+        print(self.matriz_reacoes)
         # SOMA A REAÇÃO DA ESQUERDA COM A REAÇÃO DA DIREITA
         for i in range(0, len(self.matriz_reacoes)):
             # SE I ==0 E A VIGA TEM MAIS DE 2 TRAMOS (MAIS DE 3 APOIOS)
@@ -258,18 +312,21 @@ class Eq3momentos(Vigahiperestatica):
                 self.lista_reacoes.append(r_acumulado_i)
                 self.lista_reacoes.append(r_acumulado_i_mais_1)
             # SE ESTAMOS NO ÚLTIMO TRECHO DA VIGA
-            elif i == len(self.matriz_reacoes)-1:
+            elif i == len(self.matriz_reacoes)-1 and len(self.viga.lista_comprimentos) != 2:
                 r_acumulado_i_mais_1 = self.matriz_reacoes[i][1]
                 self.lista_reacoes.append(r_acumulado_i_mais_1)
             # SE I =0 E A VIGA TEM APENAS DOIS TRAMOS (3 APOIOS)
             elif  i == 0 and len(self.viga.lista_comprimentos) == 2:
                 r_acumulado_i_menos_1 = self.matriz_reacoes[i][0]
                 r_acumulado_i = self.matriz_reacoes[i][1] + self.matriz_reacoes[i + 1][0]
-                r_acumulado_i_mais_1 = self.matriz_reacoes[i+1][0]
+                r_acumulado_i_mais_1 = self.matriz_reacoes[i+1][1]
                 self.lista_reacoes.append(r_acumulado_i_menos_1)
                 self.lista_reacoes.append(r_acumulado_i)
                 self.lista_reacoes.append(r_acumulado_i_mais_1)
-            # SE NÃO ESTAMOS NOS TRECHOS DAS EXTREMIDADE DAS VIGAS
+            # SE I=1 E A VIGA TEM APENS DOIS TRAMOS
+            elif i == len(self.matriz_reacoes) - 1 and len(self.viga.lista_comprimentos) == 2:
+                pass
+
             else:
                 r_acumulado_i = self.matriz_reacoes[i][1]+ self.matriz_reacoes[i+1][0]
                 self.lista_reacoes.append(r_acumulado_i)
@@ -283,7 +340,7 @@ class Eq3momentos(Vigahiperestatica):
 class Diferencas_finitas(Vigahiperestatica):
     def __init__(self, viga):
         self.viga = viga
-        self.passo = 0.01
+        self.passo = 0.001
         self.matriz_segunda_derivada = None
         self.matriz_momento_dividido_por_EI = None
         self.resultados_deformação = None
@@ -330,7 +387,7 @@ class Diferencas_finitas(Vigahiperestatica):
                 posicao_apoio = posicao_apoio +self.viga.lista_comprimentos[i-1]
             self.eixo_x.append(posicao_apoio)
     def gera_grafico_deflexoes(self):
-        plt.scatter(self.eixo_x, self.lista_deflexoes)
+        plt.scatter(self.eixo_x, self.lista_deflexoes, s= 0.1)
         plt.plot()
         plt.title('Deflexão ao longo da viga ')
         plt.xlabel('x (m)')
@@ -355,6 +412,7 @@ class Diferencas_finitas(Vigahiperestatica):
         EqM = len(self.viga.lista_eq_momento_por_trecho) - 1
         # FAZ O FOR EM TODOS OS TRECHOS DA VIGA
         for x in range(0,len(self.viga.lista_eq_momento_por_trecho)):
+            #print('xxxxxxxxxxxxxx', i)
             if x ==0:
                 # SE O X==0, ENTÃO O X COMEÇA EM 0
                 eixo_x = self.passo*self.viga.lista_comprimentos[x]
@@ -394,15 +452,19 @@ class Diferencas_finitas(Vigahiperestatica):
                 else:
                     indice = indice + 1
                 self.eixo_x.append(eixo_x)
+                #print(eixo_x)
                 #FAZ O INCREMENTO NO X_ATUAL ( QUE SEMPRE SERÁ TERÁ X=0 NO COMEÇO DO TRECHO)
                 # E O EIXO_X ACUMULA OS VALORES
                 x_atual = x_atual + self.passo*self.viga.lista_comprimentos[x]
                 eixo_x = eixo_x + self.passo * self.viga.lista_comprimentos[x]
                 self.matriz_segunda_derivada.append(self.linha_vazia)
                 self.matriz_momento_dividido_por_EI.append(momento_no_ponto)
-            EqM = EqM - 1
 
-            comprimento_acumulado += self.viga.lista_comprimentos[x-1]
+            EqM = EqM - 1
+            #print(x)
+            #print(self.viga.lista_comprimentos[x])
+            comprimento_acumulado += self.viga.lista_comprimentos[x]
+            #print('O comprimento acumulado é,',comprimento_acumulado)
 
 
         self.remove_apoios_da_matriz_com_o_indice_dos_y()
@@ -410,6 +472,8 @@ class Diferencas_finitas(Vigahiperestatica):
         self.cria_lista_deflexoes()
         self.adiciona_o_x_das_posicoes_de_apoio()
         self.gera_grafico_deflexoes()
+        #print(self.eixo_x)
+        #print(self.lista_deflexoes)
 
 
 
@@ -440,7 +504,7 @@ class Contexto:
 
 if __name__== '__main__':
     # O USUÁRIO VAI ENTRAR COM OS COMPRIMENTOS DE CADA TRECHO E O VALOR DA CARGA DISTRIBUÍDA
-    viga = Vigahiperestatica(lista_comprimentos=[10,8,10,5,9,8],carga_q=1, b= 0.2, h=0.3, fck = 30)
+    viga = Vigahiperestatica(lista_comprimentos=[10,5,5],carga_q=1, b= 0.2, h=0.3, fck = 30)
     #print(viga.I)
     contexto = Contexto(viga)
     contexto.apply()
