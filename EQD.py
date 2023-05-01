@@ -20,7 +20,7 @@ class Vigahiperestatica:
         # de 20 até 50 MPa
         Eci = 0.9 * 5600 * math.sqrt(self.fck)
         alfa =  0.8 + 0.2 * self.fck/80
-        self.Ecs = Eci * alfa
+        self.Ecs = (Eci * alfa)
     def apply(self):
         self.calcula_momento_de_inercia()
         self.calculo_modulo_elasticidade()
@@ -102,8 +102,14 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                 self.scatter_y_cortante.append(cortante)
         plt.plot(self.scatter_x, self.scatter_y_momento)
         plt.plot()
+        plt.title('Momento fletor ao longo da viga ')
+        plt.xlabel('x (m)')
+        plt.ylabel('Momento fletor (kNm)')
         plt.show()
         plt.plot(self.scatter_x, self.scatter_y_cortante)
+        plt.title('Força cortante ao longo da viga ')
+        plt.xlabel('x (m)')
+        plt.ylabel('Força cortante (kN)')
         plt.plot()
         plt.show()
 
@@ -277,7 +283,7 @@ class Eq3momentos(Vigahiperestatica):
 class Diferencas_finitas(Vigahiperestatica):
     def __init__(self, viga):
         self.viga = viga
-        self.passo = 0.05
+        self.passo = 0.2
         self.matriz_segunda_derivada = None
         self.matriz_momento_dividido_por_EI = None
         self.resultados_deformação = None
@@ -321,6 +327,7 @@ class Diferencas_finitas(Vigahiperestatica):
             else:
 
                 eixo_x = x_atual + self.viga.lista_comprimentos[x]*self.passo
+            print(x_atual)
 
             x_atual = self.passo * self.viga.lista_comprimentos[x]
             fim = int(1 / self.passo) -1
@@ -394,6 +401,9 @@ class Diferencas_finitas(Vigahiperestatica):
 
         plt.scatter(self.eixo_x, lista_deflexoes)
         plt.plot()
+        plt.title('Deflexão ao longo da viga ')
+        plt.xlabel('x (m)')
+        plt.ylabel('Deflexão (mm)')
         plt.show()
 
 
@@ -426,7 +436,7 @@ class Contexto:
 
 if __name__== '__main__':
     # O USUÁRIO VAI ENTRAR COM OS COMPRIMENTOS DE CADA TRECHO E O VALOR DA CARGA DISTRIBUÍDA
-    viga = Vigahiperestatica(lista_comprimentos=[10,10],carga_q=1, b= 0.2, h=0.3, fck = 30)
+    viga = Vigahiperestatica(lista_comprimentos=[10,10,10,10],carga_q=1, b= 0.2, h=0.3, fck = 30)
     #print(viga.I)
     contexto = Contexto(viga)
     contexto.apply()
