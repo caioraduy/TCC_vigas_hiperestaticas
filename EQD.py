@@ -411,7 +411,7 @@ class Diferencas_finitas(Vigahiperestatica):
         plt.ylabel('Deflexão (mm)')
         plt.show()
 
-    def metodo_das_diferencas_finitas_apoios(self):
+    def apply(self):
         # CÁLCULA O NÚMERO DE ITERAÇÕES A PARTIR DO PASSO
         i = int(1/self.passo +1)
         # CRIA UMA LISTA PARA O EIXO X (X AO LONGO DA VIGA)
@@ -489,20 +489,6 @@ class Diferencas_finitas(Vigahiperestatica):
         self.cria_lista_deflexoes()
         self.adiciona_o_x_das_posicoes_de_apoio()
         self.gera_grafico_deflexoes()
-        #print(self.eixo_x)
-        #print(self.lista_deflexoes)
-
-
-
-
-  #XX
-
-
-
-
-
-
-
 
 
 class Contexto:
@@ -516,12 +502,12 @@ class Contexto:
         momentos = Calcula_momentos_por_trecho(self.viga)
         momentos.apply()
         diferenças_finitas = Diferencas_finitas(self.viga)
-        diferenças_finitas.metodo_das_diferencas_finitas_apoios()
+        diferenças_finitas.apply()
 
 
 if __name__== '__main__':
     # O USUÁRIO VAI ENTRAR COM OS COMPRIMENTOS DE CADA TRECHO E O VALOR DA CARGA DISTRIBUÍDA
-    viga = Vigahiperestatica(lista_comprimentos=[10,5,5,5,6],carga_q=1, b= 0.2, h=0.3, fck = 30)
+    viga = Vigahiperestatica(lista_comprimentos=[10,5,5,5,10],carga_q=1, b= 0.2, h=0.3, fck = 30)
     #print(viga.I)
     contexto = Contexto(viga)
     contexto.apply()
