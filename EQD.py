@@ -64,7 +64,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             self.acumulado_L.append(acumulado)
 
 
-        print('xxxxxxx',self.acumulado_L)
+        print('xxxxxxx',self.viga.lista_comprimentos)
 
         L= 0
         for i in range (0,len(self.viga.lista_comprimentos)-1):
@@ -75,7 +75,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             L += 1
             self.lista_comprimento_acumulado_invertido.append(x)
         self.lista_comprimento_acumulado_invertido.append(0)
-        print(self.lista_comprimento_acumulado_invertido)
+        #print(self.lista_comprimento_acumulado_invertido)
         L = len(self.viga.lista_comprimentos)
         for i in range(0, len(self.viga.lista_comprimentos)):
             x = 0
@@ -86,16 +86,16 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             self.lista_comprimento_acumulado_vaos_meio.append(x)
         self.lista_comprimento_acumulado_vaos_meio.append(0)
 
-        print('tatu', self.lista_comprimento_acumulado_vaos_meio)
-        print('xxx', self.lista_comprimento_acumulado_invertido)
+        #print('tatu', self.lista_comprimento_acumulado_vaos_meio)
+        #print('xxx', self.lista_comprimento_acumulado_invertido)
     def gera_equacoes_momentos_por_trecho(self):
         self.lista_eq_LE=[]
         L = 0
         V = len(self.viga.lista_comprimentos)-1
         x_acumulado = 0
         # for de traz para frente, começando no número de elementos da lista com os comprimentos
+        # for da equação
         for i in range(len(self.viga.lista_comprimentos),0,-1 ):
-            print('XXXXXXXXXXXXXXXXXXXXXXXXXXXX')
             print(i)
             LE=[]
             #variável que acumula o termo independente
@@ -103,24 +103,27 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             #variável que acumula x^1
             self.x_acumulado = 0
             k = 0
+            L_acumulado_trecho = 0
+            fim = -1
+            # for das reações
             for j in range(L, len(self.viga.lista_comprimentos)):
+                # o X1 é a posição do último trecho antes do trecho analisado, pois o comprimento no trecho analisado será X
+                X1 = len(self.viga.lista_comprimentos)-L-2
 
-                #combina a reação de apoio com o comprimento acumulado
-                if j==len(self.viga.lista_comprimentos)-1:
-                    termo_inde =0
+                L_acumulado_trecho = 0
+                # calcula o comprimento acumulado que deve ser multiplicado pela reação
+                # a reação vai da esquerda da direita (começa no primeiro apoio e vai até o último)
+                # o comprimento deve ser o analisado da direita para a esquerda
+                # somando o L de cada trecho até a reação
+                # então o comprimento acumulado é a soma dos comprimentos do trecho analisado até o trecho da reação
+                # isso deve ser feito para toda reação por isso mais um for
+                # FOR DA REAÇÃO
+                # O X1 é o trecho analisado e o fim é a reação. O X1 se mantém para o trecho e o fim aumenta a cada reação
+                for _k in range(X1,fim,-1):
+                    L_acumulado_trecho+=self.viga.lista_comprimentos[_k]
+                fim = fim +1
 
-                elif i > 0 and i < len(self.viga.lista_comprimentos):
-                    print(self.lista_comprimento_acumulado_vaos_meio)
-                    print('O comprimento é',self.lista_comprimento_acumulado_vaos_meio[j])
-                    print('O j é', j)
-                    termo_inde = self.viga.lista_reações[k] * self.lista_comprimento_acumulado_vaos_meio[j]
-                elif j ==len(self.viga.lista_comprimentos)-2:
-                    termo_inde = self.viga.lista_reações[k]
-
-                else:
-
-                    termo_inde = self.viga.lista_reações[k] * self.lista_comprimento_acumulado_invertido[j]
-                print(termo_inde)
+                termo_inde = self.viga.lista_reações[k] * L_acumulado_trecho
                 #o x é a reação
                 x = self.viga.lista_reações[k]
                 #acumula os valores
@@ -518,7 +521,7 @@ class Contexto:
 
 if __name__== '__main__':
     # O USUÁRIO VAI ENTRAR COM OS COMPRIMENTOS DE CADA TRECHO E O VALOR DA CARGA DISTRIBUÍDA
-    viga = Vigahiperestatica(lista_comprimentos=[10,5,5,5],carga_q=1, b= 0.2, h=0.3, fck = 30)
+    viga = Vigahiperestatica(lista_comprimentos=[10,5,5,5,6],carga_q=1, b= 0.2, h=0.3, fck = 30)
     #print(viga.I)
     contexto = Contexto(viga)
     contexto.apply()
