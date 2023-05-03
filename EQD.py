@@ -64,7 +64,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             self.acumulado_L.append(acumulado)
 
 
-        print('xxxxxxx',self.viga.lista_comprimentos)
+        #print('xxxxxxx',self.viga.lista_comprimentos)
 
         L= 0
         for i in range (0,len(self.viga.lista_comprimentos)-1):
@@ -88,6 +88,16 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
 
         #print('tatu', self.lista_comprimento_acumulado_vaos_meio)
         #print('xxx', self.lista_comprimento_acumulado_invertido)
+    def imprime_equações_momentos(self):
+        print('-------EQUAÇÕES DOS MOMENTOS POR TRECHO-------')
+        for i in range(1, len(self.viga.lista_comprimentos)):
+            X = len(self.viga.lista_comprimentos) -i
+
+            print(f'Equação do momento no trecho {X} é:')
+            print(f'{self.lista_eq_LE[i][2]}x² + {self.lista_eq_LE[i][1]}x + {self.lista_eq_LE[i][0]}')
+            print('      ')
+
+
     def gera_equacoes_momentos_por_trecho(self):
         self.lista_eq_LE=[]
         L = 0
@@ -96,7 +106,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
         # for de traz para frente, começando no número de elementos da lista com os comprimentos
         # for da equação
         for i in range(len(self.viga.lista_comprimentos),0,-1 ):
-            print(i)
+            #print(i)
             LE=[]
             #variável que acumula o termo independente
             self.termo_inde_acumulado = 0
@@ -149,8 +159,11 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             LE.append(x_2)
             self.lista_eq_LE.append(LE)
         self.viga.lista_eq_momento_por_trecho = self.lista_eq_LE
-        print("Os polinômios que representam a equação dos momentos por trecho são")
-        print("(do último para o primeiro trecho):",self.lista_eq_LE)
+
+        self.imprime_equações_momentos()
+
+        #print("Os polinômios que representam a equação dos momentos por trecho são")
+        #print("(do último para o primeiro trecho):",self.lista_eq_LE)
     def gera_diagrama_momento_fletor(self):
 
 
@@ -169,7 +182,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                 self.scatter_y_momento.append(momento_fletor)
                 self.scatter_y_cortante.append(cortante)
             EqM += 1
-        print(self.scatter_x)
+        #print(self.scatter_x)
         plt.plot(self.scatter_x, self.scatter_y_momento)
         plt.plot()
         plt.title('Momento fletor ao longo da viga ')
@@ -248,7 +261,13 @@ class Eq3momentos(Vigahiperestatica):
             self.lista_momentos.append(self.Resultados_momentos[i][0])
         self.lista_momentos.insert(0,0)
         self.lista_momentos.insert(len(self.viga.lista_comprimentos),0)
-        print(f'O vetor que representa os momentos nos apoios é: {self.lista_momentos}')
+        self.printa_momentos()
+        #print(f'O vetor que representa os momentos nos apoios é: {self.lista_momentos}')
+    def printa_momentos(self):
+        print('----------MOMENTOS FLETORES NOS APOIOS-------------')
+        for i in range(0, len(self.lista_momentos)):
+            print(f'O momento no apoio {i+1} é {self.lista_momentos[i]} kNm')
+            print(' ')
 
 
     def equacao_3_momentos(self):
@@ -319,7 +338,7 @@ class Eq3momentos(Vigahiperestatica):
             lista_reacoes_esquerda_direita.append(Ri)
             lista_reacoes_esquerda_direita.append(Ri_mais1)
             self.matriz_reacoes.append(lista_reacoes_esquerda_direita)
-        print(self.matriz_reacoes)
+        #print(self.matriz_reacoes)
         # SOMA A REAÇÃO DA ESQUERDA COM A REAÇÃO DA DIREITA
         for i in range(0, len(self.matriz_reacoes)):
             # SE I ==0 E A VIGA TEM MAIS DE 2 TRAMOS (MAIS DE 3 APOIOS)
@@ -348,8 +367,13 @@ class Eq3momentos(Vigahiperestatica):
                 r_acumulado_i = self.matriz_reacoes[i][1]+ self.matriz_reacoes[i+1][0]
                 self.lista_reacoes.append(r_acumulado_i)
         self.viga.lista_reações =self.lista_reacoes
-
-        print( f' O vetor com as reações de apoio da viga é: {self.lista_reacoes}')
+        self.printa_reacoes()
+        #print( f' O vetor com as reações de apoio da viga é: {self.lista_reacoes}')
+    def printa_reacoes(self):
+        print('-----------REAÇÕES DE APOIO------------')
+        for i in range(0, len(self.lista_reacoes)):
+            print(f'A reação do apoio {i+1} é {self.lista_reacoes[i]} kN')
+            print(' ')
 
     def apply(self):
         self.equacao_3_momentos()
@@ -495,7 +519,7 @@ class Contexto:
     def __init__(self,viga):
         self.viga= viga
     def apply(self):
-        print(self.viga.I)
+        #print(self.viga.I)
         self.viga.apply()
         reações = Eq3momentos(self.viga)
         reações.apply()
