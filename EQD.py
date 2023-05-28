@@ -86,15 +86,13 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             self.lista_comprimento_acumulado_vaos_meio.append(x)
         self.lista_comprimento_acumulado_vaos_meio.append(0)
 
-        #print('tatu', self.lista_comprimento_acumulado_vaos_meio)
-        #print('xxx', self.lista_comprimento_acumulado_invertido)
     def imprime_equações_momentos(self):
         print('-------EQUAÇÕES DOS MOMENTOS POR TRECHO-------')
-        for i in range(1, len(self.viga.lista_comprimentos)):
+        for i in range(0, len(self.viga.lista_comprimentos)):
             X = len(self.viga.lista_comprimentos) -i
 
             print(f'Equação do momento no trecho {X} é:')
-            print(f'{self.lista_eq_LE[i][2]}x² + {self.lista_eq_LE[i][1]}x + {self.lista_eq_LE[i][0]}')
+            print(f'{self.lista_eq_LE[i][2]}x² + {self.lista_eq_LE[i][1]}x + 1.({self.lista_eq_LE[i][0]})')
             print('      ')
 
 
@@ -330,6 +328,7 @@ class Eq3momentos(Vigahiperestatica):
             parcela_momento_i = self.lista_momentos[i]
             #MOMENTO APOIO DA DIREITA
             parcela_momento_i_mais1 = -1*self.lista_momentos[i+1]
+
             # REAÇÃO DE APOIO DA DIREITA
             Ri_mais1 = (parcela_carga + parcela_momento_i +parcela_momento_i_mais1)/self.viga.lista_comprimentos[i]
             # REAÇÃO DE APOIO DA ESQUERDA
@@ -337,9 +336,10 @@ class Eq3momentos(Vigahiperestatica):
             # ADICIONA OS PARES DE REAÇÃO
             lista_reacoes_esquerda_direita.append(Ri)
             lista_reacoes_esquerda_direita.append(Ri_mais1)
+
             self.matriz_reacoes.append(lista_reacoes_esquerda_direita)
-        #print(self.matriz_reacoes)
         # SOMA A REAÇÃO DA ESQUERDA COM A REAÇÃO DA DIREITA
+
         for i in range(0, len(self.matriz_reacoes)):
             # SE I ==0 E A VIGA TEM MAIS DE 2 TRAMOS (MAIS DE 3 APOIOS)
             if i == 0 and len(self.viga.lista_comprimentos) >2:
@@ -531,7 +531,7 @@ class Contexto:
 
 if __name__== '__main__':
     # O USUÁRIO VAI ENTRAR COM OS COMPRIMENTOS DE CADA TRECHO E O VALOR DA CARGA DISTRIBUÍDA
-    viga = Vigahiperestatica(lista_comprimentos=[10,5,5,5,10],carga_q=1, b= 0.2, h=0.3, fck = 30)
+    viga = Vigahiperestatica(lista_comprimentos=[10,10,10],carga_q=1, b= 0.2, h=0.3, fck = 30)
     #print(viga.I)
     contexto = Contexto(viga)
     contexto.apply()
