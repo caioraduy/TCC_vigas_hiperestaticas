@@ -15,12 +15,15 @@ class Vigahiperestatica:
         self.I = None
     def calcula_momento_de_inercia(self):
         I = (self.b * (self.h **3) )/ 12
+        #print(I)
         self.I = I
     def calculo_modulo_elasticidade(self):
         # de 20 até 50 MPa
         Eci = 0.9 * 5600 * math.sqrt(self.fck)
         alfa =  0.8 + 0.2 * self.fck/80
         self.Ecs = (Eci * alfa)
+        print(f'O Ecs é {self.Ecs}')
+        #print(self.Ecs)
     def apply(self):
         self.calcula_momento_de_inercia()
         self.calculo_modulo_elasticidade()
@@ -63,8 +66,6 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             #print(acumulado)
             self.acumulado_L.append(acumulado)
 
-
-        #print('xxxxxxx',self.viga.lista_comprimentos)
 
         L= 0
         for i in range (0,len(self.viga.lista_comprimentos)-1):
@@ -142,16 +143,18 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             #calcula o termo da carga
 
             termo_inde_carga = self.viga.carga_q * self.acumulado_L[V]**2/2
+            #print('---------------------------------')
+            #print(self.acumulado_L)
+            #print(self.acumulado_L[V])
+            #print(V)
             x_carga = self.viga.carga_q * self.acumulado_L[V]
             x_2 = -self.viga.carga_q/2
             # o L aumenta, cada vez o número de reações é maior
             L=L+1
-            # o V diminui para combinar a maior reação com o menor valor de comprimento acumulado
+            # o V diminui para combinar a carga distribuída com o comprimento toral
             V=V-1
-            #print('O termo iden', self.termo_inde_acumulado)
             self.x_acumulado -= x_carga
             self.termo_inde_acumulado -= termo_inde_carga
-            #print('O termo independ',self.termo_inde_acumulado )
             LE.append(self.termo_inde_acumulado)
             LE.append(self.x_acumulado)
             LE.append(x_2)
@@ -389,11 +392,13 @@ class Diferencas_finitas(Vigahiperestatica):
         self.eixo_x = None
         self.lista_deslocamentos_igual_zero = None
         self.lista_deflexoes = None
+        self.c = None
         Vigahiperestatica.__init__(self, viga)
     def gera_linha_cheia_de_zeros(self):
         # CRIA A LISTA VAZIA COM O NÚMERO DE INCÓGNICAS (Y/DEFLEXOES AO LONGO DA VIGA)
         self.linha_vazia =[]
         c=int(1/self.passo)*len(self.viga.lista_comprimentos)+1
+        self.c =c
         for i in range(0, c):
             self.linha_vazia.append(0)
 
@@ -428,6 +433,7 @@ class Diferencas_finitas(Vigahiperestatica):
                 posicao_apoio = posicao_apoio +self.viga.lista_comprimentos[i-1]
             self.eixo_x.append(posicao_apoio)
     def gera_grafico_deflexoes(self):
+        print(self.lista_deflexoes)
         plt.scatter(self.eixo_x, self.lista_deflexoes, s= 0.1)
         plt.plot()
         plt.title('Deflexão ao longo da viga ')
@@ -465,11 +471,17 @@ class Diferencas_finitas(Vigahiperestatica):
             # A VIGA VAI ATÉ O NUMÉRO DE DIVISÕES -1, POIS O ÚLTIMO PONTO SERÁ O APOIO ONDE O DESLOCAMENTO
             # SERÁ ZERO
             fim = int(1 / self.passo) -1
+            print('--------o passo é-------------')
+            h= (self.passo)*self.viga.lista_comprimentos[x]
+            print(h)
             # FAZ O FOR DENTRO DO TRECHO COM AS ITERAÇÕES DO MÉTODO DAS DIFERENÇAS FINITAS
             for y in range (0, fim):
                 # CÁLCULA O MOMENTO NO PONTO
+                #print(self.viga.Ecs)
+                #print(self.viga.I)
+                #print(self.passo)
                 momento_no_ponto = ((self.viga.lista_eq_momento_por_trecho[EqM][0] +self.viga.lista_eq_momento_por_trecho[EqM][1]*x_atual
-                                     +self.viga.lista_eq_momento_por_trecho[EqM][2]*x_atual**2) * self.passo**2)/(self.viga.Ecs * self.viga.I)
+                                     +self.viga.lista_eq_momento_por_trecho[EqM][2]*x_atual**2) * (h**2))/(self.viga.Ecs * self.viga.I )
 
                 self.gera_linha_cheia_de_zeros()
                 # SE ALGUM DOS INDICES (INDICE -1, INDICE, INDICE +1) FOR IGUAL A INDICE QUE REPRESENTE O APOIO O Y SERÁ ZERO
@@ -531,7 +543,7 @@ class Contexto:
 
 if __name__== '__main__':
     # O USUÁRIO VAI ENTRAR COM OS COMPRIMENTOS DE CADA TRECHO E O VALOR DA CARGA DISTRIBUÍDA
-    viga = Vigahiperestatica(lista_comprimentos=[10,10,10],carga_q=1, b= 0.2, h=0.3, fck = 30)
+    viga = Vigahiperestatica(lista_comprimentos=[10,10,10,10,10],carga_q=10, b= 0.2, h=0.3, fck = 30)
     #print(viga.I)
     contexto = Contexto(viga)
     contexto.apply()
