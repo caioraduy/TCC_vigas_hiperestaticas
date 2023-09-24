@@ -133,6 +133,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                 fim = fim +1
 
                 termo_inde = self.viga.lista_reações[k] * L_acumulado_trecho
+
                 #o x é a reação
                 x = self.viga.lista_reações[k]
                 #acumula os valores
@@ -184,6 +185,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                 self.scatter_y_cortante.append(cortante)
             EqM += 1
         #print(self.scatter_x)
+        plt.gca().invert_yaxis()
         plt.plot(self.scatter_x, self.scatter_y_momento)
         plt.plot()
         plt.title('Momento fletor ao longo da viga ')
@@ -543,7 +545,7 @@ class Contexto:
 
 if __name__== '__main__':
     # O USUÁRIO VAI ENTRAR COM OS COMPRIMENTOS DE CADA TRECHO E O VALOR DA CARGA DISTRIBUÍDA
-    viga = Vigahiperestatica(lista_comprimentos=[10,10,10,10,10],carga_q=10, b= 0.2, h=0.3, fck = 30)
+    viga = Vigahiperestatica(lista_comprimentos=[10,10,10],carga_q=10, b= 0.2, h=0.3, fck = 30)
     #print(viga.I)
     contexto = Contexto(viga)
     contexto.apply()
