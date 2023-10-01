@@ -24,7 +24,17 @@ class Vigahiperestatica:
         self.I = None
         self.balanco_esquerdo = balanco_esquerdo
         self.balanco_direito = balanco_direito
+        self.numero_apoios = 0
+    def calcular_numero_apoios(self):
+        print(len(self.lista_comprimentos))
+        if self.balanco_esquerdo == False and self.balanco_direito ==False:
+            numero_apoios = len(self.lista_comprimentos) + 1
+        elif self.balanco_esquerdo == True and self.balanco_direito == False:
+            numero_apoios = len(self.lista_comprimentos)
+        elif self.balanco_esquerdo == True and self.balanco_direito == True:
+            numero_apoios = len(self.lista_comprimentos) -1
 
+        self.numero_apoios = numero_apoios
     def calcula_momento_de_inercia(self):
         I = (self.b * (self.h **3) )/ 12
         #print(I)
@@ -38,5 +48,6 @@ class Vigahiperestatica:
         #print(self.Ecs)
 
     def apply(self):
+        self.calcular_numero_apoios()
         self.calcula_momento_de_inercia()
         self.calculo_modulo_elasticidade()

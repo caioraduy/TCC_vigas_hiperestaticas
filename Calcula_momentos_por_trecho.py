@@ -186,14 +186,6 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
         #print("(do último para o primeiro trecho):",self.lista_eq_LE)
 
     def gera_equacoes_momentos_por_trecho_com_balanco(self):
-        x_balanco = 0
-        x = 0
-        x_carga = 0
-        x_balanco = 0
-        termo_inde_acumulado_balanco = 0
-        termo_inde = 0
-        termo_inde_carga = 0
-        x_2 = 0
         # variável que acumula x^1
         self.x_acumulado = 0
         self.x_acumulado_carga = 0
@@ -204,6 +196,14 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
         # for de traz para frente, começando no número de elementos da lista com os comprimentos
         # for da equação
         for i in range(len(self.viga.lista_comprimentos),0,-1 ):
+            x_balanco = 0
+            x = 0
+            x_carga = 0
+            x_balanco = 0
+            termo_inde_acumulado_balanco = 0
+            termo_inde = 0
+            termo_inde_carga = 0
+            x_2 = 0
             print('----------------eq')
             #print(i)
             LE=[]
@@ -254,10 +254,13 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
 
 
                 if self.viga.balanco_esquerdo == True:
-                    if i ==0:
-                        x_2 = self.viga.lista_comprimentos[0]/2
+                    print(f'O i é {i}')
+                    if i ==1:
+                        print('xx')
+                        x_2 = -self.viga.lista_comprimentos[0]/2
                         #reação de apoio
                     else:
+                        print(f'O i é {i}')
                         termo_inde = self.viga.lista_reações[k] * L_acumulado_trecho
                         x = self.viga.lista_reações[k]
                         if k < V:

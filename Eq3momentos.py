@@ -54,6 +54,7 @@ class Eq3momentos(Vigahiperestatica):
         self.Resultados_momentos = np.linalg.solve(self.M, self.C)
 
     def gera_matriz_quadrada(self):
+        print(self.matriz_incognitas)
         self.matriz_incognitas_quadrada = []
         for i in range(0, len(self.matriz_incognitas)):
             self.linha_incognitas_quadrada = []
@@ -80,7 +81,17 @@ class Eq3momentos(Vigahiperestatica):
         self.gera_matriz_cheia_de_zeros()
         self.matriz_termo_inde = []
         self.matriz_incognitas = []
-        for i in range(0, len(self.viga.lista_comprimentos)-1):
+        if self.viga.balanco_esquerdo == True:
+            inicio = 1
+        else:
+            inicio =0
+        if self.viga.balanco_direito == True:
+            fim = len(self.viga.lista_comprimentos)-2
+        else:
+            fim = len(self.viga.lista_comprimentos)-1
+
+        for i in range(inicio, fim):
+            print(i)
             # pega uma lista com zeros
             self.lista_incognitas_prencher = self.matriz_incognitas_vazia[i]
             lista_termo_ind =[]
@@ -89,33 +100,60 @@ class Eq3momentos(Vigahiperestatica):
             self.indice_mi = i + 1
             self.indice_mi_posterior = i + 2
             # se i=0 e a viga tem mais de 3 apoios
-            if i == 0 and len(self.viga.lista_comprimentos) > 2:
-                self.Mi_anterior = 0
+            if i == inicio and self.viga.numero_apoios > 3:
                 self.Mi = 2 * self.viga.lista_comprimentos[i] + 2 * self.viga.lista_comprimentos[i+1]
                 self.Mi_posterior = self.viga.lista_comprimentos[i+1]
+                if self.viga.balanco_esquerdo == True:
+                    self.Mi_anterior = - self.viga.lista_comprimentos[0]**2* self.viga.lista_cargas_q[0]*self.viga.lista_comprimentos[i]/2
+                else:
+                    self.Mi_anterior = 0
+                termo_inde = -6 * (self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i] ** 3) / 24 - \
+                             6 * (self.viga.lista_cargas_q[i + 1] * self.viga.lista_comprimentos[
+                    i + 1] ** 3) / 24  - self.Mi_anterior
+
             # se i=0 e a viga tem apenas 3 apoios
-            if i == 0 and len(self.viga.lista_comprimentos) == 2:
-                self.Mi_anterior = 0
+            if i == inicio and self.viga.numero_apoios == 3:
                 self.Mi = 2 * self.viga.lista_comprimentos[i] + 2 * self.viga.lista_comprimentos[i+1]
-                self.Mi_posterior = 0
+                if self.viga.balanco_direito == True:
+                    self.Mi_posterior= - self.viga.lista_comprimentos[-1] ** 2 * self.viga.lista_cargas_q[-1] * self.viga.lista_comprimentos[i + 1] / 2
+                else:
+                    self.Mi_posterior = 0
+
+                if self.viga.balanco_esquerdo == True:
+                    self.Mi_anterior = - self.viga.lista_comprimentos[0]**2 * self.viga.lista_cargas_q[0]* self.viga.lista_comprimentos[i]/2
+                else:
+                    self.Mi_anterior = 0
+                termo_inde = -6 * (self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i] ** 3) / 24 - \
+                             6 * (self.viga.lista_cargas_q[i + 1] * self.viga.lista_comprimentos[
+                    i + 1] ** 3) / 24 - self.Mi_posterior - self.Mi_anterior
             # se i> 0 e não é último apoio que estamos tratando
-            if i > 0 and i <  len(self.viga.lista_comprimentos)-2:
+            if i > inicio and i <  fim-1 :
                 self.Mi_anterior = self.viga.lista_comprimentos[i]
                 self.Mi = 2 * self.viga.lista_comprimentos[i] + 2 * self.viga.lista_comprimentos[i+1]
                 self.Mi_posterior = self.viga.lista_comprimentos[i + 1]
             # se i > 0 e estamos lidando com o último apoio
-            if  i == len(self.viga.lista_comprimentos)-2:
+                termo_inde = -6 * (self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i] ** 3) / 24 - \
+                             6 * (self.viga.lista_cargas_q[i + 1] * self.viga.lista_comprimentos[i + 1] ** 3) / 24
+            if  i == fim-1:
                 self.Mi_anterior = self.viga.lista_comprimentos[i]
                 self.Mi = 2 * self.viga.lista_comprimentos[i] + 2 * self.viga.lista_comprimentos[i+1]
-                self.Mi_posterior = 0
-                #print(Mi_anterior)
-                #print(Mi)
+                if self.viga.balanco_direito == True:
+                    self.Mi_posterior = - self.viga.lista_comprimentos[-1]**2* self.viga.lista_cargas_q[-1]*self.viga.lista_comprimentos[i+1]/2
+                else:
+                    self.Mi_posterior = 0
+                termo_inde = -6 * (self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i] ** 3) / 24 - \
+                             6 * (self.viga.lista_cargas_q[i + 1] * self.viga.lista_comprimentos[i + 1] ** 3) / 24 - self.Mi_posterior
+
+
+            print(self.Mi_anterior)
+            print(self.Mi_posterior)
             #calcula o termo independete e adiciona em uma matriz
             print(self.viga.lista_cargas_q[i])
             termo_inde = -6 * (self.viga.lista_cargas_q[i]*self.viga.lista_comprimentos[i]**3)/24 -\
                          6* (self.viga.lista_cargas_q[i+1]*self.viga.lista_comprimentos[i+1]**3)/24
             lista_termo_ind.append(termo_inde)
             self.matriz_termo_inde.append(lista_termo_ind)
+            print(self.matriz_termo_inde)
             # adiciona os 'Momentos" na matriz de acordo com o indice
             self.adiciona_elementos_na_matriz_das_incognitas()
         # retira o primeiro e o último momento que são iguais a zero para obter a solução
@@ -124,6 +162,7 @@ class Eq3momentos(Vigahiperestatica):
         self.resolve_sistema_equacoes()
         self.gera_lista_momentos()
         self.calcula_reacoes_apoio()
+
 
     def calcula_reacoes_apoio(self):
         self.lista_reacoes =[]
