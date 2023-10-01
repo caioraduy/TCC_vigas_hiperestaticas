@@ -67,8 +67,14 @@ class Eq3momentos(Vigahiperestatica):
         self.lista_momentos = []
         for i in range(0, len(self.Resultados_momentos)):
             self.lista_momentos.append(self.Resultados_momentos[i][0])
-        self.lista_momentos.insert(0,0)
-        self.lista_momentos.insert(len(self.viga.lista_comprimentos),0)
+        if self.viga.balanco_esquerdo == True:
+            self.lista_momentos.insert(0, -self.viga.lista_comprimentos[0]**2 * self.viga.lista_cargas_q[0]/2)
+        else:
+            self.lista_momentos.insert(0,0)
+        if self.viga.balanco_direito == True:
+            self.lista_momentos.insert(len(self.viga.lista_comprimentos),-self.viga.lista_comprimentos[-1]**2 * self.viga.lista_cargas_q[-1]/2)
+        else:
+            self.lista_momentos.insert(len(self.viga.lista_comprimentos), 0)
         self.printa_momentos()
         #print(f'O vetor que representa os momentos nos apoios é: {self.lista_momentos}')
     def printa_momentos(self):
@@ -176,6 +182,7 @@ class Eq3momentos(Vigahiperestatica):
         self.matriz_reacoes =[]
         #CALCULA AS REAÇÕES DE APOIO POR TRECHO E ADICIONA EM UMA MATRIZ COM OS PARES
         for i in range( 0,len(self.viga.lista_comprimentos)):
+            print(self.lista_momentos)
             lista_reacoes_esquerda_direita =[]
             #MOMENTO GERADO PELA CARGA
             parcela_carga = self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i]*self.viga.lista_comprimentos[i]/2
@@ -184,10 +191,49 @@ class Eq3momentos(Vigahiperestatica):
             #MOMENTO APOIO DA DIREITA
             parcela_momento_i_mais1 = -1*self.lista_momentos[i+1]
 
-            # REAÇÃO DE APOIO DA DIREITA
-            Ri_mais1 = (parcela_carga + parcela_momento_i +parcela_momento_i_mais1)/self.viga.lista_comprimentos[i]
+            if self.viga.balanco_esquerdo == True:
+                if i == 0:
+                    Ri_mais1 = self.viga.lista_comprimentos[i]**2*self.viga.lista_cargas_q[0]
+                # REAÇÃO DE APOIO DA ESQUERDA
+                    Ri = 0
+                # ADICIONA OS PARES DE REAÇÃO
+                    lista_reacoes_esquerda_direita.append(Ri)
+                    lista_reacoes_esquerda_direita.append(Ri_mais1)
+                elif i ==1:
+                    #REAÇÃO APOIO DA DIREITA
+                    Ri_mais1 = -(parcela_carga + parcela_momento_i + parcela_momento_i_mais1) / \
+                               self.viga.lista_comprimentos[i]
+                    # REAÇÃO DE APOIO DA ESQUERDA
+                    Ri = -(-parcela_carga + parcela_momento_i + parcela_momento_i_mais1) / \
+                               self.viga.lista_comprimentos[i]
+                elif i == len(self.viga.lista_comprimentos) -1 and self.viga.balanco_direito == True:
+                    Ri = -(parcela_carga + parcela_momento_i + parcela_momento_i_mais1) / \
+                               self.viga.lista_comprimentos[i]
+                    # REAÇÃO DE APOIO DA ESQUERDA
+                    Ri_mais = -(-parcela_carga + parcela_momento_i + parcela_momento_i_mais1) / \
+                         self.viga.lista_comprimentos[i]
+                else:
+                    Ri_mais1 = (parcela_carga + parcela_momento_i +parcela_momento_i_mais1)/self.viga.lista_comprimentos[i]
             # REAÇÃO DE APOIO DA ESQUERDA
-            Ri = self.viga.lista_cargas_q[i]*self.viga.lista_comprimentos[i] - Ri_mais1
+                    Ri = self.viga.lista_cargas_q[i]*self.viga.lista_comprimentos[i] - Ri_mais1
+            else:
+                if i == len(self.viga.lista_comprimentos) -1 and self.viga.balanco_esquerdo == True:
+                    Ri = -(parcela_carga + parcela_momento_i + parcela_momento_i_mais1) / \
+                               self.viga.lista_comprimentos[i]
+                    Ri_mais = -(-parcela_carga + parcela_momento_i + parcela_momento_i_mais1) / \
+                              self.viga.lista_comprimentos[i]
+                else:
+                    # REAÇÃO DE APOIO DA DIREITA
+                    Ri_mais1 = (parcela_carga + parcela_momento_i + parcela_momento_i_mais1) / \
+                               self.viga.lista_comprimentos[i]
+                    # REAÇÃO DE APOIO DA ESQUERDA
+                    Ri = self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i] - Ri_mais1
+
+
+
+
+
+
             # ADICIONA OS PARES DE REAÇÃO
             lista_reacoes_esquerda_direita.append(Ri)
             lista_reacoes_esquerda_direita.append(Ri_mais1)
@@ -197,17 +243,17 @@ class Eq3momentos(Vigahiperestatica):
 
         for i in range(0, len(self.matriz_reacoes)):
             # SE I ==0 E A VIGA TEM MAIS DE 2 TRAMOS (MAIS DE 3 APOIOS)
-            if i == 0 and len(self.viga.lista_comprimentos) >2:
+            if i == 0 and self.viga.numero_apoios > 3:
                 r_acumulado_i = self.matriz_reacoes[i][0]
                 r_acumulado_i_mais_1 = self.matriz_reacoes[i][1] + self.matriz_reacoes[i + 1][0]
                 self.lista_reacoes.append(r_acumulado_i)
                 self.lista_reacoes.append(r_acumulado_i_mais_1)
             # SE ESTAMOS NO ÚLTIMO TRECHO DA VIGA
-            elif i == len(self.matriz_reacoes)-1 and len(self.viga.lista_comprimentos) != 2:
+            elif i == len(self.matriz_reacoes)-1 and self.viga.numero_apoios != 3:
                 r_acumulado_i_mais_1 = self.matriz_reacoes[i][1]
                 self.lista_reacoes.append(r_acumulado_i_mais_1)
             # SE I =0 E A VIGA TEM APENAS DOIS TRAMOS (3 APOIOS)
-            elif  i == 0 and len(self.viga.lista_comprimentos) == 2:
+            elif  i == 0 and self.viga.numero_apoios == 2:
                 r_acumulado_i_menos_1 = self.matriz_reacoes[i][0]
                 r_acumulado_i = self.matriz_reacoes[i][1] + self.matriz_reacoes[i + 1][0]
                 r_acumulado_i_mais_1 = self.matriz_reacoes[i+1][1]
@@ -215,9 +261,8 @@ class Eq3momentos(Vigahiperestatica):
                 self.lista_reacoes.append(r_acumulado_i)
                 self.lista_reacoes.append(r_acumulado_i_mais_1)
             # SE I=1 E A VIGA TEM APENS DOIS TRAMOS
-            elif i == len(self.matriz_reacoes) - 1 and len(self.viga.lista_comprimentos) == 2:
+            elif i == len(self.matriz_reacoes) - 1 and len(self.viga.numero_apoios) == 3:
                 pass
-
             else:
                 r_acumulado_i = self.matriz_reacoes[i][1]+ self.matriz_reacoes[i+1][0]
                 self.lista_reacoes.append(r_acumulado_i)
