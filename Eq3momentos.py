@@ -174,7 +174,7 @@ class Eq3momentos(Vigahiperestatica):
         #resolve o sistema de equações
         self.resolve_sistema_equacoes()
         self.gera_lista_momentos()
-        if self.viga.balanco_esquerdo == False and self.viga.balanco_direito == False:
+        if self.viga.balanco_esquerdo == False and self.balanco_direito == False:
             self.calcula_reacoes_apoio()
         elif self.viga.balanco_esquerdo == True or self.viga.balanco_direito == False:
             self.calcula_reacoes_apoio_balanco()
