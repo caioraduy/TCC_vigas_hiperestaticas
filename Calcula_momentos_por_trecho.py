@@ -337,8 +337,9 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
 
     def apply(self):
         self.calcula_comprimentos_acumulados()
-        if self.viga.balanco_esquerdo == False and self.viga.balanco_esquerdo == False:
+        print(self.balanco_esquerdo)
+        if self.balanco_esquerdo == False and self.balanco_esquerdo == False:
             self.gera_equacoes_momentos_por_trecho()
-        else:
+        elif self.viga.balanco_esquerdo == True or self.viga.balanco_direito == True:
             self.gera_equacoes_momentos_por_trecho_com_balanco()
         self.gera_diagrama_momento_fletor()

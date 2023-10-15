@@ -28,6 +28,7 @@ class Diferencas_finitas(Vigahiperestatica):
             self.linha_vazia.append(0)
 
 
+
     def resolve_sistema_para_descobrir_deformaçao_nos_pontos(self):
         # RESOLVE SISTEMA DE EQUAÇÕES
         M = np.array(self.matriz_segunda_derivada)
