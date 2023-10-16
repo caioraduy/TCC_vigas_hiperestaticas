@@ -278,11 +278,11 @@ class Eq3momentos(Vigahiperestatica):
             elif i ==1:
                 if self.viga.balanco_esquerdo == True:
                     print(parcela_carga, parcela_momento_i, parcela_momento_i_mais1)
-                    Ri_mais1 = (parcela_carga + parcela_momento_i - parcela_momento_i_mais1) /self.viga.lista_comprimentos[i]
-                    print(Ri_mais1)
+
                     # REAÇÃO DE APOIO DA ESQUERDA
                     Ri = (parcela_carga - parcela_momento_i -parcela_momento_i_mais1) / \
                                self.viga.lista_comprimentos[i]
+                    Ri_mais1 = self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i] - Ri
                     Ri = Ri +self.viga.lista_comprimentos[i-1]*self.viga.lista_cargas_q[i-1]
                 if not self.viga.balanco_esquerdo == True:
                     Ri_mais1 = (parcela_carga + parcela_momento_i + parcela_momento_i_mais1) / \
@@ -307,12 +307,12 @@ class Eq3momentos(Vigahiperestatica):
                 print('xxxxxxxxxx')
                 if self.viga.balanco_direito == True:
                     print(parcela_carga, parcela_momento_i, parcela_momento_i_mais1)
-                    Ri = (parcela_carga + parcela_momento_i - parcela_momento_i_mais1) / \
-                                   self.viga.lista_comprimentos[i]
+
                     print(Ri_mais1)
                     # REAÇÃO DE APOIO DA ESQUERDA
                     Ri_mais1 = (parcela_carga + parcela_momento_i + parcela_momento_i_mais1) / \
-                    self.viga.lista_comprimentos[i]
+                               self.viga.lista_comprimentos[i]
+                    Ri = self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i] - Ri_mais1
                     print(Ri_mais1)
                     Ri_mais1 = Ri_mais1 + self.viga.lista_comprimentos[self.viga.numero_apoios]*self.viga.lista_cargas_q[self.viga.numero_apoios]
 

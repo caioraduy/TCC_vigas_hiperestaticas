@@ -9,7 +9,7 @@ from Vigahiperestatica import *
 class Diferencas_finitas(Vigahiperestatica):
     def __init__(self, viga):
         self.viga = viga
-        self.passo = 0.001
+        self.passo = 0.2
         self.matriz_segunda_derivada = None
         self.matriz_momento_dividido_por_EI = None
         self.resultados_deformação = None
@@ -33,12 +33,20 @@ class Diferencas_finitas(Vigahiperestatica):
         # RESOLVE SISTEMA DE EQUAÇÕES
         M = np.array(self.matriz_segunda_derivada)
         C = np.array(self.matriz_momento_dividido_por_EI)
+        print(len(M))
+        print(C)
         self.resultados_deformação = np.linalg.solve(M, C)
 
     def gera_lista_vazia(self):
-        for i in range(1, len(self.viga.lista_comprimentos)+1):
-            x = int(i/self.passo)
-            self.lista_deslocamentos_igual_zero.append(x)
+        for i in range(0, len(self.viga.lista_comprimentos)+1):
+            if self.viga.balanco_esquerdo== True and i==0:
+                pass
+            elif self.viga.balanco_direito == True and i == len(self.viga.lista_comprimentos):
+                pass
+            else:
+                x = int(i/self.passo)
+
+                self.lista_deslocamentos_igual_zero.append(x)
     def remove_apoios_da_matriz_com_o_indice_dos_y(self):
         # REMOVE OS APOIOS POIS JÁ SABEMOS QUE NELES Y=0 E DESSA FORMA A MATRIZ SE TORNA QUADRADA
         for i in range(0, len(self.matriz_segunda_derivada)):
@@ -72,7 +80,7 @@ class Diferencas_finitas(Vigahiperestatica):
         i = int(1/self.passo +1)
         # CRIA UMA LISTA PARA O EIXO X (X AO LONGO DA VIGA)
         self.eixo_x =[]
-        self.lista_deslocamentos_igual_zero = [0]
+        self.lista_deslocamentos_igual_zero = []
         comprimento_acumulado =0
         self.gera_lista_vazia()
         #ESSA MATRIZ VAI ARMAZENAR OS Ys (Y1, Y2,..., Yn-1, Yn) OBTIDOS PARA O SISTEMA DE EQUAÇÃO
@@ -109,9 +117,11 @@ class Diferencas_finitas(Vigahiperestatica):
                 momento_no_ponto = ((self.viga.lista_eq_momento_por_trecho[EqM][0] +self.viga.lista_eq_momento_por_trecho[EqM][1]*x_atual
                                      +self.viga.lista_eq_momento_por_trecho[EqM][2]*x_atual**2) * (h**2))/(self.viga.Ecs * self.viga.I )
 
+                print(self.lista_deslocamentos_igual_zero)
                 self.gera_linha_cheia_de_zeros()
                 # SE ALGUM DOS INDICES (INDICE -1, INDICE, INDICE +1) FOR IGUAL A INDICE QUE REPRESENTE O APOIO O Y SERÁ ZERO
                 # SE FOR DIFERENTE SEGUE A SEGUINTE LÓGICA 1.Yn-1 - 2 Yn + 1. Yn+1
+                #print(self.lista_deslocamentos_igual_zero)
                 if indice+1 in self.lista_deslocamentos_igual_zero:
                     self.linha_vazia[indice + 1] = 0
                 else:
