@@ -204,14 +204,14 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             termo_inde = 0
             termo_inde_carga = 0
             x_2 = 0
-            print('----------------eq')
+            print('----------------eq', i)
             #print(i)
             LE=[]
             #variável que acumula o termo independente
             self.termo_inde_acumulado = 0
             self.termo_inde_acumulado_carga =0
             termo_inde_acumulado_balanco = 0
-
+            L_acumulado_balanco = 0
             #variável que acumula x^1
             self.x_acumulado = 0
             self.x_acumulado_carga = 0
@@ -219,12 +219,23 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             L_acumulado_trecho = 0
             fim = -1
             # for das reações
-            for j in range(L, len(self.viga.lista_comprimentos)):
+
+            for j in range(L, len(self.viga.lista_comprimentos)-1):
+
+                if j==L:
+                    L_trecho_balanco = self.viga.lista_comprimentos[0] / 2
+                elif j!=L:
+                    L_trecho_balanco =self.viga.lista_comprimentos[j-1]
+                print('j e l balanço')
+                print(j, L_trecho_balanco)
+
+                L_acumulado_balanco +=L_trecho_balanco
+
+
                 # o X1 é a posição do último trecho antes do trecho analisado, pois o comprimento no trecho analisado será X
                 X1 = len(self.viga.lista_comprimentos)-L-2
 
                 L_acumulado_trecho = 0
-                L_acumulado_trecho_balanco =0
                 L_acumulado_trecho_carga_q= 0
                 # calcula o comprimento acumulado que deve ser multiplicado pela reação
                 # a reação vai da esquerda da direita (começa no primeiro apoio e vai até o último)
@@ -234,59 +245,72 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                 # isso deve ser feito para toda reação por isso mais um for
                 # FOR DA REAÇÃO
                 # O X1 é o trecho analisado e o fim é a reação. O X1 se mantém para o trecho e o fim aumenta a cada reação
-                print(L, V)
+                #print(L, V)
                 for _k in range(X1,fim,-1):
-                    if _k == fim+2:
-                        L_acumulado_trecho += self.viga.lista_comprimentos[_k]
+                    if _k == fim+1:
+                        L_acumulado_trecho += 0
                         L_acumulado_trecho_carga_q += self.viga.lista_comprimentos[_k]/2
-                        L_acumulado_trecho_balanco += self.viga.lista_comprimentos[_k]
-                        L_acumulado_trecho_balanco += self.viga.balanco_esquerdo/2
-                    elif _k == X1:
-                        L_acumulado_trecho +=0
-                        L_acumulado_trecho_carga_q += 0
-                        L_acumulado_trecho_balanco += self.viga.lista_comprimentos[_k]
 
                     else:
                         L_acumulado_trecho+=self.viga.lista_comprimentos[_k]
                         L_acumulado_trecho_carga_q +=self.viga.lista_comprimentos[_k]
-                        L_acumulado_trecho_balanco += self.viga.lista_comprimentos[_k]
+                    #print(f'X1= {X1}, fim= {fim}, _k ={_k},comprimento ={self.viga.lista_comprimentos[_k]}, comprimento reação ={L_acumulado_trecho}')
                 fim = fim + 1
+                #print(L_acumulado_trecho_carga_q)
+                #print(L_acumulado_trecho)
+
 
 
                 if self.viga.balanco_esquerdo == True:
-                    print(f'O i é {i}')
+                    #print(f'O i é {i}')
                     if i ==1:
-                        print('xx')
+                        #print('xx')
                         x_2 = -self.viga.lista_comprimentos[0]/2
                         #reação de apoio
                     else:
-                        print(f'O i é {i}')
-                        print(self.viga.lista_reações[k-1])
-                        termo_inde = self.viga.lista_reações[k-1] * L_acumulado_trecho
-                        x = self.viga.lista_reações[k-1]
+
+
+
                         if k < V:
-                            termo_inde_carga = -self.viga.lista_cargas_q[k] * L_acumulado_trecho_carga_q * self.viga.lista_comprimentos[k]
-                            x_carga = - self.viga.lista_cargas_q[k] * self.viga.lista_comprimentos[k]
+                            print(self.viga.lista_reações[k], L_acumulado_trecho)
+                            print(self.viga.lista_reações[k], L_acumulado_trecho)
+                            termo_inde = self.viga.lista_reações[k] * L_acumulado_trecho
+                            x = self.viga.lista_reações[k]
+                            print(k,self.viga.lista_cargas_q[k],L_acumulado_trecho_carga_q, self.viga.lista_comprimentos[k])
+                            # O problema está aqui
+                            if k!=0:
+                                termo_inde_carga = -self.viga.lista_cargas_q[k] * L_acumulado_trecho_carga_q * self.viga.lista_comprimentos[k]
+                                x_carga = - self.viga.lista_cargas_q[k] * self.viga.lista_comprimentos[k]
                         elif k == V:
+
                             x_2 = -  self.viga.lista_cargas_q[k]/2
                             x_carga= 0
                             termo_inde_carga = 0
-                        termo_inde_carga_balanco = -self.viga.lista_cargas_q[0] * L_acumulado_trecho_balanco * self.viga.lista_comprimentos[0]
-                        x_balanco = -self.viga.lista_cargas_q[0] * self.viga.lista_comprimentos[0]
+                        #print('O L acumulado para o balanço é', L_acumulado_trecho_balanco)
+
+
+
 
                 #acumula os valores
 
                 self.x_acumulado += x
                 self.x_acumulado_carga += x_carga
-                x_balanco += x_balanco
 
-                termo_inde_acumulado_balanco +=termo_inde_acumulado_balanco
+
+                #termo_inde_acumulado_balanco +=termo_inde_carga_balanco
                 self.termo_inde_acumulado += termo_inde
                 self.termo_inde_acumulado_carga += termo_inde_carga
+
                 # aumenta o K para que no próxima iteração seja obtido o valor correto da reação
                 k=k+1
 
-            self.termo_inde_acumulado_total = self.termo_inde_acumulado +self.termo_inde_acumulado_carga +termo_inde_acumulado_balanco
+            termo_inde_carga_balanco = -self.viga.lista_cargas_q[0] * L_acumulado_balanco * \
+                                       self.viga.lista_comprimentos[0]
+
+            x_balanco = -self.viga.lista_cargas_q[0] * self.viga.lista_comprimentos[0]
+
+            self.termo_inde_acumulado_total = self.termo_inde_acumulado +self.termo_inde_acumulado_carga +termo_inde_carga_balanco
+            print(self.x_acumulado,self.x_acumulado_carga, x_balanco)
             self.x_acumulado_total = self.x_acumulado + self.x_acumulado_carga + x_balanco
 
             # o L aumenta, cada vez o número de reações é maior
@@ -297,7 +321,6 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             LE.append(x_2)
             self.lista_eq_LE.append(LE)
         self.viga.lista_eq_momento_por_trecho = self.lista_eq_LE
-
         self.imprime_equações_momentos()
 
         #print("Os polinômios que representam a equação dos momentos por trecho são")
