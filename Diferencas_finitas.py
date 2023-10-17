@@ -9,7 +9,7 @@ from Vigahiperestatica import *
 class Diferencas_finitas(Vigahiperestatica):
     def __init__(self, viga):
         self.viga = viga
-        self.passo = 0.2
+        self.passo = 0.01
         self.matriz_segunda_derivada = None
         self.matriz_momento_dividido_por_EI = None
         self.resultados_deformação = None
@@ -23,6 +23,7 @@ class Diferencas_finitas(Vigahiperestatica):
         # CRIA A LISTA VAZIA COM O NÚMERO DE INCÓGNICAS (Y/DEFLEXOES AO LONGO DA VIGA)
         self.linha_vazia =[]
         c=int(1/self.passo)*len(self.viga.lista_comprimentos)+1
+        print('O c é', c)
         self.c =c
         for i in range(0, c):
             self.linha_vazia.append(0)
@@ -33,9 +34,10 @@ class Diferencas_finitas(Vigahiperestatica):
         # RESOLVE SISTEMA DE EQUAÇÕES
         M = np.array(self.matriz_segunda_derivada)
         C = np.array(self.matriz_momento_dividido_por_EI)
-        print(len(M))
+        print(M)
         print(C)
         self.resultados_deformação = np.linalg.solve(M, C)
+        print(self.resultados_deformação)
 
     def gera_lista_vazia(self):
         for i in range(0, len(self.viga.lista_comprimentos)+1):
@@ -49,6 +51,7 @@ class Diferencas_finitas(Vigahiperestatica):
                 self.lista_deslocamentos_igual_zero.append(x)
     def remove_apoios_da_matriz_com_o_indice_dos_y(self):
         # REMOVE OS APOIOS POIS JÁ SABEMOS QUE NELES Y=0 E DESSA FORMA A MATRIZ SE TORNA QUADRADA
+        print(f' A lista de deslocamentos igual a zero {self.lista_deslocamentos_igual_zero}')
         for i in range(0, len(self.matriz_segunda_derivada)):
             for y in range(len(self.lista_deslocamentos_igual_zero) - 1, -1, -1):
                 self.matriz_segunda_derivada[i].pop(self.lista_deslocamentos_igual_zero[y])
@@ -60,7 +63,12 @@ class Diferencas_finitas(Vigahiperestatica):
     def adiciona_o_x_das_posicoes_de_apoio(self):
         #ADICIONA OS APOIOS COM DEFLEXÃO IGUAL A ZERO EM TODOS E A POSIÇÃO X
         for i in range(0, len(self.viga.lista_comprimentos)+1):
-            self.lista_deflexoes.append(0)
+            if self.viga.balanco_esquerdo == True and i==0:
+                pass
+            elif self.viga.balanco_direito == True and i ==len(self.viga.lista_comprimentos):
+                pass
+            else:
+                self.lista_deflexoes.append(0)
             if i ==0:
                 posicao_apoio = 0
             else:
@@ -88,7 +96,7 @@ class Diferencas_finitas(Vigahiperestatica):
         # ESSA MATRIZ VAI ARMAZENAR O LAMBDA = M(X). PASSO²/EI
         self.matriz_momento_dividido_por_EI = []
         # A VIGA COMEÇA SER ANALISADA EM 1, POIS 0 SERÁ A EXTREMIDADE ONDE A DEFLEXÃO SERÁ ZERO
-        indice = 1
+        indice =0
         # CONTROLA O INDICE DAS EQUAÇÕES DO MOMENTO QUE ESTÃO DO ÚLTIMO TRECHO PARA O PRIMEIRO
         EqM = len(self.viga.lista_eq_momento_por_trecho) - 1
         # FAZ O FOR EM TODOS OS TRECHOS DA VIGA
@@ -104,10 +112,16 @@ class Diferencas_finitas(Vigahiperestatica):
                 x_atual = self.passo * self.viga.lista_comprimentos[x-1]
             # A VIGA VAI ATÉ O NUMÉRO DE DIVISÕES -1, POIS O ÚLTIMO PONTO SERÁ O APOIO ONDE O DESLOCAMENTO
             # SERÁ ZERO
-            fim = int(1 / self.passo) -1
+            if self.viga.balanco_direito == True and x ==len(self.viga.lista_eq_momento_por_trecho)-1:
+                fim = int(1 / self.passo)
+            elif self.viga.balanco_esquerdo == True and x == 0:
+                fim = int(1 / self.passo)
+            else:
+                fim = int(1 / self.passo)-1
+
             print('--------o passo é-------------')
             h= (self.passo)*self.viga.lista_comprimentos[x]
-            print(h)
+            #print(h)
             # FAZ O FOR DENTRO DO TRECHO COM AS ITERAÇÕES DO MÉTODO DAS DIFERENÇAS FINITAS
             for y in range (0, fim):
                 # CÁLCULA O MOMENTO NO PONTO
@@ -117,26 +131,35 @@ class Diferencas_finitas(Vigahiperestatica):
                 momento_no_ponto = ((self.viga.lista_eq_momento_por_trecho[EqM][0] +self.viga.lista_eq_momento_por_trecho[EqM][1]*x_atual
                                      +self.viga.lista_eq_momento_por_trecho[EqM][2]*x_atual**2) * (h**2))/(self.viga.Ecs * self.viga.I )
 
-                print(self.lista_deslocamentos_igual_zero)
+                #print(self.lista_deslocamentos_igual_zero)
                 self.gera_linha_cheia_de_zeros()
                 # SE ALGUM DOS INDICES (INDICE -1, INDICE, INDICE +1) FOR IGUAL A INDICE QUE REPRESENTE O APOIO O Y SERÁ ZERO
                 # SE FOR DIFERENTE SEGUE A SEGUINTE LÓGICA 1.Yn-1 - 2 Yn + 1. Yn+1
-                #print(self.lista_deslocamentos_igual_zero)
-                if indice+1 in self.lista_deslocamentos_igual_zero:
-                    self.linha_vazia[indice + 1] = 0
+                #print('Lista de deslocamentos iguais a zero')
+               #print(self.lista_deslocamentos_igual_zero)
+                if self.viga.balanco_direito == True and  y == fim - 1:
+                    pass
                 else:
-                    self.linha_vazia[indice + 1] = 1
+                    if indice+1 in self.lista_deslocamentos_igual_zero:
+                        self.linha_vazia[indice + 1] = 0
+                    else:
+                        self.linha_vazia[indice + 1] = 1
 
                 if indice in self.lista_deslocamentos_igual_zero:
                     self.linha_vazia[indice] = 0
                 else:
+                    #print(self.linha_vazia)
                     self.linha_vazia[indice] = -2
-
-                if indice-1 in self.lista_deslocamentos_igual_zero:
-                    self.linha_vazia[indice-1] = 0
+                if indice ==0:
+                    pass
                 else:
-                    self.linha_vazia[indice - 1] = 1
+                    if indice-1 in self.lista_deslocamentos_igual_zero:
+                        self.linha_vazia[indice-1] = 0
+                    else:
+                        self.linha_vazia[indice - 1] = 1
+
                 if y == fim-1:
+
                     indice = indice + 2
                 else:
                     indice = indice + 1
