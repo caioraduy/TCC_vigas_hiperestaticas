@@ -9,7 +9,7 @@ from Vigahiperestatica import *
 class Diferencas_finitas(Vigahiperestatica):
     def __init__(self, viga):
         self.viga = viga
-        self.passo = 0.25
+        self.passo = 0.01
         self.matriz_segunda_derivada = None
         self.matriz_momento_dividido_por_EI = None
         self.resultados_deformação = None
@@ -22,7 +22,7 @@ class Diferencas_finitas(Vigahiperestatica):
     def gera_linha_cheia_de_zeros(self):
         # CRIA A LISTA VAZIA COM O NÚMERO DE INCÓGNICAS (Y/DEFLEXOES AO LONGO DA VIGA)
         self.linha_vazia =[]
-        c=int(1/self.passo)*len(self.viga.lista_comprimentos)
+        c=int(1/self.passo)*len(self.viga.lista_comprimentos)+1
         #print('O c é', c)
         self.c =c
 
@@ -161,10 +161,15 @@ class Diferencas_finitas(Vigahiperestatica):
                 momento = ((self.viga.lista_eq_momento_por_trecho[EqM][0] + self.viga.lista_eq_momento_por_trecho[EqM][
                         1] * x_atual
                             + self.viga.lista_eq_momento_por_trecho[EqM][2] * x_atual ** 2))
-                print(momento)
-                #print(f'O momento fletor é {momento}')
+                #print(momento)
+                print(f'O momento fletor é {momento} kN')
+                #print(self.viga.Ecs)
+                #print(self.viga.I)
+                #print(x_atual)
+                print('O h é', h)
                 momento_no_ponto = ((self.viga.lista_eq_momento_por_trecho[EqM][0] +self.viga.lista_eq_momento_por_trecho[EqM][1]*x_atual
                                      +self.viga.lista_eq_momento_por_trecho[EqM][2]*x_atual**2) * (h**2))/(self.viga.Ecs * self.viga.I )
+                print('o momento no ponto é', momento_no_ponto)
 
                 #print(self.lista_deslocamentos_igual_zero)
                 self.gera_linha_cheia_de_zeros()
