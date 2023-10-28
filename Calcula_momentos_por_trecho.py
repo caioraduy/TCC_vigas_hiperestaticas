@@ -318,6 +318,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             LE.append(self.x_acumulado_total)
             LE.append(x_2)
             self.lista_eq_LE.append(LE)
+
         self.viga.lista_eq_momento_por_trecho = self.lista_eq_LE
         self.imprime_equações_momentos()
 
