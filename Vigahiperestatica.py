@@ -25,6 +25,7 @@ class Vigahiperestatica:
         self.balanco_esquerdo = balanco_esquerdo
         self.balanco_direito = balanco_direito
         self.numero_apoios = 0
+        self.comprimento_total= 0
     def calcular_numero_apoios(self):
         print(len(self.lista_comprimentos))
         if self.balanco_esquerdo == False and self.balanco_direito ==False:
@@ -47,7 +48,12 @@ class Vigahiperestatica:
         print(f'O Ecs é {self.Ecs}')
         #print(self.Ecs)
 
+    def calculo_comprimento_total(self):
+        for i in range (0, len(self.lista_comprimentos)):
+            self.comprimento_total+= self.lista_comprimentos[i]
+
     def apply(self):
+        self.calculo_comprimento_total()
         self.calcular_numero_apoios()
         self.calcula_momento_de_inercia()
         self.calculo_modulo_elasticidade()
