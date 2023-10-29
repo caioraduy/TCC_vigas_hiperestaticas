@@ -46,21 +46,22 @@ class Diferencas_finitas(Vigahiperestatica):
 
         # RESOLVE SISTEMA DE EQUAÇÕES
         M = np.array(self.matriz_segunda_derivada)
-        #print(M)
+        print(M)
         non_zero_columns = np.any(M != 0, axis=0)
         M =M[:, non_zero_columns]
         C = np.array(self.matriz_momento_dividido_por_EI)
         #print('-------------------')
         #print('Matriz incognitas')
-        #print(M)
+        print(M)
         #print('Numero de linhas',len(M))
         #rint('Numero de colunas', len(M[0]))
         #print('-----------')
         #print('Matriz M/EI')
         #print(len(C))
-        #print(C)
+        print(C)
         self.resultados_deformação = np.linalg.solve(M, C)
-        #print(self.resultados_deformação)
+        print('Resultados deformação')
+        print(self.resultados_deformação)
 
     def gera_lista_vazia(self):
         for i in range(0, len(self.viga.lista_comprimentos)+1):
@@ -125,7 +126,7 @@ class Diferencas_finitas(Vigahiperestatica):
 
                 # SE O X>0. TEMOS QUE CONSIDERAR QUE JÁ EXISTE UM COMPRIMENTO DE VIGA AMULADO
                 eixo_x = comprimento_acumulado + self.viga.lista_comprimentos[x]*self.passo
-                x_atual = self.passo * self.viga.lista_comprimentos[x-1]
+                x_atual = self.passo * self.viga.lista_comprimentos[x]
             # A VIGA VAI ATÉ O NUMÉRO DE DIVISÕES -1, POIS O ÚLTIMO PONTO SERÁ O APOIO ONDE O DESLOCAMENTO
             # SERÁ ZERO
             if self.viga.balanco_esquerdo == True and x==0:
@@ -162,14 +163,15 @@ class Diferencas_finitas(Vigahiperestatica):
                         1] * x_atual
                             + self.viga.lista_eq_momento_por_trecho[EqM][2] * x_atual ** 2))
                 #print(momento)
-                #print(f'O momento fletor é {momento} kN')
+                print('-----------')
+                print(f'O momento fletor é {momento} kN')
                 #print(self.viga.Ecs)
                 #print(self.viga.I)
-                #print(x_atual)
+                print('O x atual é:',x_atual)
                 #print('O h é', h)
                 momento_no_ponto = ((self.viga.lista_eq_momento_por_trecho[EqM][0] +self.viga.lista_eq_momento_por_trecho[EqM][1]*x_atual
                                      +self.viga.lista_eq_momento_por_trecho[EqM][2]*x_atual**2) * (h**2))/(self.viga.Ecs * self.viga.I )
-                #print('o momento no ponto é', momento_no_ponto)
+                print('o momento no ponto é', momento_no_ponto)
 
                 #print(self.lista_deslocamentos_igual_zero)
                 self.gera_linha_cheia_de_zeros()
