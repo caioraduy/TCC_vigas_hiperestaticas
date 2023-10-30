@@ -9,7 +9,7 @@ from Vigahiperestatica import *
 class Diferencas_finitas(Vigahiperestatica):
     def __init__(self, viga):
         self.viga = viga
-        self.passo = 0.01
+        self.passo = 0.001
         self.matriz_segunda_derivada = None
         self.matriz_momento_dividido_por_EI = None
         self.resultados_deformação = None
@@ -129,6 +129,7 @@ class Diferencas_finitas(Vigahiperestatica):
                 x_atual = self.passo * self.viga.lista_comprimentos[x]
             # A VIGA VAI ATÉ O NUMÉRO DE DIVISÕES -1, POIS O ÚLTIMO PONTO SERÁ O APOIO ONDE O DESLOCAMENTO
             # SERÁ ZERO
+
             if self.viga.balanco_esquerdo == True and x==0:
                 fim = int(1 / self.passo)
             else:
@@ -139,7 +140,7 @@ class Diferencas_finitas(Vigahiperestatica):
                 inicio =-1
                 #print('O x é', x)
                 #print(len(self.viga.lista_eq_momento_por_trecho) - 1)
-                #print('oibb')
+
             else:
                 inicio = 0
 
@@ -167,8 +168,10 @@ class Diferencas_finitas(Vigahiperestatica):
                 print(f'O momento fletor é {momento} kN')
                 #print(self.viga.Ecs)
                 #print(self.viga.I)
+                print('O eixo x é', eixo_x)
                 print('O x atual é:',x_atual)
                 #print('O h é', h)
+                print(self.viga.lista_eq_momento_por_trecho[EqM])
                 momento_no_ponto = ((self.viga.lista_eq_momento_por_trecho[EqM][0] +self.viga.lista_eq_momento_por_trecho[EqM][1]*x_atual
                                      +self.viga.lista_eq_momento_por_trecho[EqM][2]*x_atual**2) * (h**2))/(self.viga.Ecs * self.viga.I )
                 print('o momento no ponto é', momento_no_ponto)

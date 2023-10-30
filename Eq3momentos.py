@@ -253,10 +253,12 @@ class Eq3momentos(Vigahiperestatica):
             #MOMENTO APOIO DA ESQUERDA
             if self.viga.balanco_esquerdo == False:
                 parcela_momento_i = self.lista_momentos[i]
+                print(self.lista_momentos[i])
             #MOMENTO APOIO DA DIREITA
                 parcela_momento_i_mais1 = -1*self.lista_momentos[i+1]
             elif self.viga.balanco_esquerdo == True:
                 parcela_momento_i = self.lista_momentos[i-1]
+                print(parcela_momento_i)
                 # MOMENTO APOIO DA DIREITA
                 parcela_momento_i_mais1 = -1 * self.lista_momentos[i + 1-1]
 
@@ -277,11 +279,13 @@ class Eq3momentos(Vigahiperestatica):
 
             elif i ==1:
                 if self.viga.balanco_esquerdo == True:
+                    print('xxxx')
                     print(parcela_carga, parcela_momento_i, parcela_momento_i_mais1)
 
                     # REAÇÃO DE APOIO DA ESQUERDA
                     Ri = (parcela_carga - parcela_momento_i -parcela_momento_i_mais1) / \
                                self.viga.lista_comprimentos[i]
+                    print('o RI é', Ri)
                     Ri_mais1 = self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i] - Ri
                     Ri = Ri +self.viga.lista_comprimentos[i-1]*self.viga.lista_cargas_q[i-1]
                 if not self.viga.balanco_esquerdo == True:
