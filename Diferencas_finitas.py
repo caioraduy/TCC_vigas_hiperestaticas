@@ -46,21 +46,20 @@ class Diferencas_finitas(Vigahiperestatica):
 
         # RESOLVE SISTEMA DE EQUAÇÕES
         M = np.array(self.matriz_segunda_derivada)
-        print(M)
+        #print(M)
         non_zero_columns = np.any(M != 0, axis=0)
         M =M[:, non_zero_columns]
         C = np.array(self.matriz_momento_dividido_por_EI)
         #print('-------------------')
         #print('Matriz incognitas')
-        print(M)
+        #print(M)
         #print('Numero de linhas',len(M))
         #rint('Numero de colunas', len(M[0]))
         #print('-----------')
         #print('Matriz M/EI')
         #print(len(C))
-        print(C)
+        #print(C)
         self.resultados_deformação = np.linalg.solve(M, C)
-        print('Resultados deformação')
         print(self.resultados_deformação)
 
     def gera_lista_vazia(self):
@@ -85,8 +84,10 @@ class Diferencas_finitas(Vigahiperestatica):
 
     def gera_grafico_deflexoes(self):
         #print(self.lista_deflexoes)
-        plt.scatter(self.eixo_x, self.lista_deflexoes, s= 0.1)
+        plt.figure(figsize=(14, 4))
+        plt.scatter(self.eixo_x, self.lista_deflexoes, s= 0.2)
         plt.plot()
+
         plt.title('Deflexão ao longo da viga ')
         plt.xlabel('x (m)')
         plt.ylabel('Deflexão (mm)')
@@ -113,7 +114,7 @@ class Diferencas_finitas(Vigahiperestatica):
         for x in range(0,len(self.viga.lista_eq_momento_por_trecho)):
             #print('--------o passo é-------------')
             #print('O x é', x)
-            #print('xxxxxxxxxxxxxx', i)
+            print('xxxxxxxxxxxxxx', x)
             if x ==0:
                 # SE O X==0, ENTÃO O X COMEÇA EM 0
                 eixo_x = self.passo*self.viga.lista_comprimentos[x]
@@ -129,7 +130,6 @@ class Diferencas_finitas(Vigahiperestatica):
                 x_atual = self.passo * self.viga.lista_comprimentos[x]
             # A VIGA VAI ATÉ O NUMÉRO DE DIVISÕES -1, POIS O ÚLTIMO PONTO SERÁ O APOIO ONDE O DESLOCAMENTO
             # SERÁ ZERO
-
             if self.viga.balanco_esquerdo == True and x==0:
                 fim = int(1 / self.passo)
             else:
@@ -140,7 +140,7 @@ class Diferencas_finitas(Vigahiperestatica):
                 inicio =-1
                 #print('O x é', x)
                 #print(len(self.viga.lista_eq_momento_por_trecho) - 1)
-
+                #print('oibb')
             else:
                 inicio = 0
 
@@ -153,28 +153,25 @@ class Diferencas_finitas(Vigahiperestatica):
             #print(inicio, fim)
 
             for y in range (inicio, fim):
-                #print(y)
+                print('-------------')
                 # CÁLCULA O MOMENTO NO PONTO
                 #print(self.viga.Ecs)
                 #print(self.viga.I)
                 #print(self.passo)
-                #print(x_atual)
-                #print(eixo_x)
+                print('O x atual é',x_atual)
+                print(eixo_x)
                 momento = ((self.viga.lista_eq_momento_por_trecho[EqM][0] + self.viga.lista_eq_momento_por_trecho[EqM][
                         1] * x_atual
                             + self.viga.lista_eq_momento_por_trecho[EqM][2] * x_atual ** 2))
                 #print(momento)
-                print('-----------')
-                print(f'O momento fletor é {momento} kN')
+                #print(f'O momento fletor é {momento} kN')
                 #print(self.viga.Ecs)
-                #print(self.viga.I)
-                print('O eixo x é', eixo_x)
-                print('O x atual é:',x_atual)
-                #print('O h é', h)
-                print(self.viga.lista_eq_momento_por_trecho[EqM])
+
+                print(x_atual)
+                print('O h é', h)
                 momento_no_ponto = ((self.viga.lista_eq_momento_por_trecho[EqM][0] +self.viga.lista_eq_momento_por_trecho[EqM][1]*x_atual
                                      +self.viga.lista_eq_momento_por_trecho[EqM][2]*x_atual**2) * (h**2))/(self.viga.Ecs * self.viga.I )
-                print('o momento no ponto é', momento_no_ponto)
+                #print('o momento no ponto é', momento_no_ponto)
 
                 #print(self.lista_deslocamentos_igual_zero)
                 self.gera_linha_cheia_de_zeros()

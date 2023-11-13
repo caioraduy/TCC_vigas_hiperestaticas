@@ -75,7 +75,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
 
             print(f'Equação do momento no trecho {X} é:')
             print(f'{self.lista_eq_LE[i][2]}x² + {self.lista_eq_LE[i][1]}x + 1.({self.lista_eq_LE[i][0]})')
-            print('      ')
+            #print('      ')
 
 
     def gera_equacoes_momentos_por_trecho(self):
@@ -86,7 +86,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
         # for de traz para frente, começando no número de elementos da lista com os comprimentos
         # for da equação
         for i in range(len(self.viga.lista_comprimentos),0,-1 ):
-            print('----------------eq')
+            #print('----------------eq')
             #print(i)
             LE=[]
             #variável que acumula o termo independente
@@ -113,7 +113,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                 # isso deve ser feito para toda reação por isso mais um for
                 # FOR DA REAÇÃO
                 # O X1 é o trecho analisado e o fim é a reação. O X1 se mantém para o trecho e o fim aumenta a cada reação
-                print(L, V)
+                #print(L, V)
                 for _k in range(X1,fim,-1):
                     if _k == fim+1:
                         L_acumulado_trecho += self.viga.lista_comprimentos[_k]
@@ -123,22 +123,22 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                         L_acumulado_trecho+=self.viga.lista_comprimentos[_k]
                         L_acumulado_trecho_carga_q +=self.viga.lista_comprimentos[_k]
                 fim = fim + 1
-                print(f'-----------{k}----------------')
+                #print(f'-----------{k}----------------')
 
                 # termo independente reação
-                print(f'Reação de apoio {self.viga.lista_reações[k]}')
-                print(f'L acumulado {L_acumulado_trecho}')
+                #print(f'Reação de apoio {self.viga.lista_reações[k]}')
+                #print(f'L acumulado {L_acumulado_trecho}')
                 termo_inde = self.viga.lista_reações[k] * L_acumulado_trecho
-                print(f'termo inde reação {termo_inde}')
+                #print(f'termo inde reação {termo_inde}')
                 # x^1 reação
                 x = self.viga.lista_reações[k]
 
 
                 if k < V:
 
-                    print(f' carga q no vão {self.viga.lista_cargas_q[k]}')
-                    print(f' L acumulado trecho {L_acumulado_trecho_carga_q}')
-                    print(f'O comprimento do trecho é {self.viga.lista_comprimentos[k]}')
+                    #print(f' carga q no vão {self.viga.lista_cargas_q[k]}')
+                    #print(f' L acumulado trecho {L_acumulado_trecho_carga_q}')
+                    #print(f'O comprimento do trecho é {self.viga.lista_comprimentos[k]}')
 
                     termo_inde_carga = -self.viga.lista_cargas_q[k] * L_acumulado_trecho_carga_q * self.viga.lista_comprimentos[k]
                     x_carga = - self.viga.lista_cargas_q[k] * self.viga.lista_comprimentos[k]
@@ -152,11 +152,11 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                     termo_inde_carga = 0
 
                 #acumula os valores
-                print(x_carga)
+                #print(x_carga)
                 self.x_acumulado += x
                 self.x_acumulado_carga += x_carga
-                print('x da reação', self.x_acumulado)
-                print('x da carga', self.x_acumulado_carga)
+                #print('x da reação', self.x_acumulado)
+                #print('x da carga', self.x_acumulado_carga)
 
                 # termo independente
                 #adiciona parcela reação
@@ -166,8 +166,8 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                 # aumenta o K para que no próxima iteração seja obtido o valor correto da reação
                 k=k+1
             #calcula o termo da carga
-            print(self.termo_inde_acumulado)
-            print(self.termo_inde_acumulado_carga)
+            #print(self.termo_inde_acumulado)
+            #print(self.termo_inde_acumulado_carga)
             self.termo_inde_acumulado_total = self.termo_inde_acumulado +self.termo_inde_acumulado_carga
             self.x_acumulado_total = self.x_acumulado + self.x_acumulado_carga
 
@@ -204,7 +204,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             termo_inde = 0
             termo_inde_carga = 0
             x_2 = 0
-            print('----------------eq', i)
+            #print('----------------eq', i)
             #print(i)
             LE=[]
             #variável que acumula o termo independente
@@ -221,16 +221,16 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             # for das reações
 
             for j in range(L, len(self.viga.lista_comprimentos)-1):
-                print('O j é',j)
-                print('O L é', L)
+                #print('O j é',j)
+                #print('O L é', L)
 
                 if j==L:
                     L_trecho_balanco = self.viga.lista_comprimentos[0] / 2
                 elif j!=L:
                     L_trecho_balanco =self.viga.lista_comprimentos[j]
-                print('j e l balanço')
-                print(j, L_trecho_balanco)
-                print('-------')
+                #print('j e l balanço')
+                #print(j, L_trecho_balanco)
+                #print('-------')
 
                 L_acumulado_balanco +=L_trecho_balanco
 
@@ -291,12 +291,12 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                 termo_inde_carga_balanco = 0
                 x_balanco = 0
             elif i!=1:
-                print(self.viga.lista_cargas_q[0])
-                print(L_acumulado_balanco)
-                print(self.viga.lista_comprimentos[0])
+                #print(self.viga.lista_cargas_q[0])
+                #print(L_acumulado_balanco)
+                #print(self.viga.lista_comprimentos[0])
                 termo_inde_carga_balanco = -self.viga.lista_cargas_q[0] * L_acumulado_balanco * \
                                        self.viga.lista_comprimentos[0]
-                print(termo_inde_carga_balanco)
+                #print(termo_inde_carga_balanco)
 
                 x_balanco = -self.viga.lista_cargas_q[0] * self.viga.lista_comprimentos[0]
 
@@ -308,8 +308,8 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
             # o L aumenta, cada vez o número de reações é maior
             L = L + 1
             V = V - 1
-            print(self.termo_inde_acumulado_total)
-            print(self.x_acumulado_total)
+            #print(self.termo_inde_acumulado_total)
+            #print(self.x_acumulado_total)
             LE.append(self.termo_inde_acumulado_total)
             LE.append(self.x_acumulado_total)
             LE.append(x_2)
@@ -340,6 +340,9 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                 self.scatter_y_cortante.append(cortante)
             EqM += 1
         #print(self.scatter_x)
+
+
+        plt.figure(figsize=(10, 4))
         plt.gca().invert_yaxis()
         plt.plot(self.scatter_x, self.scatter_y_momento)
         plt.plot()
@@ -347,6 +350,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
         plt.xlabel('x (m)')
         plt.ylabel('Momento fletor (kNm)')
         plt.show()
+        plt.figure(figsize=(14, 4))
         plt.plot(self.scatter_x, self.scatter_y_cortante)
         plt.title('Força cortante ao longo da viga ')
         plt.xlabel('x (m)')
@@ -356,7 +360,7 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
 
     def apply(self):
         self.calcula_comprimentos_acumulados()
-        print(self.balanco_esquerdo)
+        #print(self.balanco_esquerdo)
         if self.viga.balanco_esquerdo == False and self.viga.balanco_esquerdo == False:
             self.gera_equacoes_momentos_por_trecho()
         elif self.viga.balanco_esquerdo == True or self.viga.balanco_direito == True:

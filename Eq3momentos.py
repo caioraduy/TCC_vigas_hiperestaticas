@@ -40,10 +40,10 @@ class Eq3momentos(Vigahiperestatica):
             for j in range(0, self.viga.numero_apoios):
                 x = 0
                 self.lista_incognitas_vazia.append(x)
-            print(self.lista_incognitas_vazia)
+            #print(self.lista_incognitas_vazia)
             self.matriz_incognitas_vazia.append(self.lista_incognitas_vazia)
     def adiciona_elementos_na_matriz_das_incognitas(self):
-        print(self.lista_incognitas_prencher)
+        #print(self.lista_incognitas_prencher)
         self.lista_incognitas_prencher[self.indice_mi_anterior] = self.Mi_anterior
         self.lista_incognitas_prencher[self.indice_mi] = self.Mi
         self.lista_incognitas_prencher[self.indice_mi_posterior] = self.Mi_posterior
@@ -55,7 +55,7 @@ class Eq3momentos(Vigahiperestatica):
         self.Resultados_momentos = np.linalg.solve(self.M, self.C)
 
     def gera_matriz_quadrada(self):
-        print(self.matriz_incognitas)
+        #print(self.matriz_incognitas)
         self.matriz_incognitas_quadrada = []
         for i in range(0, len(self.matriz_incognitas)):
             self.linha_incognitas_quadrada = []
@@ -81,7 +81,7 @@ class Eq3momentos(Vigahiperestatica):
         print('----------MOMENTOS FLETORES NOS APOIOS-------------')
         for i in range(0, len(self.lista_momentos)):
             print(f'O momento no apoio {i+1} é {self.lista_momentos[i]} kNm')
-            print(' ')
+
 
 
     def equacao_3_momentos(self):
@@ -98,10 +98,10 @@ class Eq3momentos(Vigahiperestatica):
             fim = len(self.viga.lista_comprimentos)-1
 
         for i in range(inicio, fim):
-            print(i)
+            #print(i)
             # pega uma lista com zeros
-            print(self.matriz_incognitas_vazia[i-1])
-            print(self.lista_incognitas_prencher)
+            #print(self.matriz_incognitas_vazia[i-1])
+            #print(self.lista_incognitas_prencher)
             if self.viga.balanco_esquerdo == True:
                 self.lista_incognitas_prencher = self.matriz_incognitas_vazia[i - 1]
                 self.indice_mi_anterior = i-1
@@ -128,7 +128,7 @@ class Eq3momentos(Vigahiperestatica):
 
             # se i=0 e a viga tem apenas 3 apoios
             if i == inicio and self.viga.numero_apoios == 3:
-                print('XXXXXXXXX')
+                #print('XXXXXXXXX')
                 self.Mi = 2 * self.viga.lista_comprimentos[i] + 2 * self.viga.lista_comprimentos[i+1]
                 if self.viga.balanco_direito == True:
                     self.Mi_posterior= - self.viga.lista_comprimentos[-1] ** 2 * self.viga.lista_cargas_q[-1] * self.viga.lista_comprimentos[i + 1] / 2
@@ -142,7 +142,7 @@ class Eq3momentos(Vigahiperestatica):
                 termo_inde = -6 * (self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i] ** 3) / 24 - \
                              6 * (self.viga.lista_cargas_q[i + 1] * self.viga.lista_comprimentos[
                     i + 1] ** 3) / 24 - self.Mi_anterior - self.Mi_posterior
-                print('o termo é', termo_inde)
+                #('o termo é', termo_inde)
             # se i> 0 e não é último apoio que estamos tratando
             if i > inicio and i <  fim-1 :
                 self.Mi_anterior = self.viga.lista_comprimentos[i]
@@ -161,12 +161,12 @@ class Eq3momentos(Vigahiperestatica):
                 termo_inde = -6 * (self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i] ** 3) / 24 - \
                              6 * (self.viga.lista_cargas_q[i + 1] * self.viga.lista_comprimentos[i + 1] ** 3) / 24 - self.Mi_posterior
             #calcula o termo independete e adiciona em uma matriz
-            print(self.viga.lista_cargas_q[i])
-            print(f'o termo inde é {termo_inde}')
+            #print(self.viga.lista_cargas_q[i])
+            #print(f'o termo inde é {termo_inde}')
 
             lista_termo_ind.append(termo_inde)
             self.matriz_termo_inde.append(lista_termo_ind)
-            print(self.matriz_termo_inde)
+            #print(self.matriz_termo_inde)
             # adiciona os 'Momentos" na matriz de acordo com o indice
             self.adiciona_elementos_na_matriz_das_incognitas()
         # retira o primeiro e o último momento que são iguais a zero para obter a solução
@@ -191,7 +191,7 @@ class Eq3momentos(Vigahiperestatica):
             # MOMENTO APOIO DA ESQUERDA
             parcela_momento_i = self.lista_momentos[i]
             # MOMENTO APOIO DA DIREITA
-            print(self.lista_momentos)
+            #print(self.lista_momentos)
             parcela_momento_i_mais1 = -1 * self.lista_momentos[i + 1]
 
             # REAÇÃO DE APOIO DA DIREITA
@@ -240,25 +240,25 @@ class Eq3momentos(Vigahiperestatica):
         self.lista_reacoes =[]
         self.matriz_reacoes =[]
         #CALCULA AS REAÇÕES DE APOIO POR TRECHO E ADICIONA EM UMA MATRIZ COM OS PARES
-        print(self.viga.numero_apoios)
+        #print(self.viga.numero_apoios)
 
 
         for i in range( 0, self.viga.numero_apoios):
-            print('-------------------')
-            print(i)
-            print(self.lista_momentos)
+            #('-------------------')
+            #print(i)
+            #print(self.lista_momentos)
             lista_reacoes_esquerda_direita =[]
             #MOMENTO GERADO PELA CARGA
             parcela_carga = self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i]*self.viga.lista_comprimentos[i]/2
             #MOMENTO APOIO DA ESQUERDA
             if self.viga.balanco_esquerdo == False:
                 parcela_momento_i = self.lista_momentos[i]
-                print(self.lista_momentos[i])
+                #print(self.lista_momentos[i])
             #MOMENTO APOIO DA DIREITA
                 parcela_momento_i_mais1 = -1*self.lista_momentos[i+1]
             elif self.viga.balanco_esquerdo == True:
                 parcela_momento_i = self.lista_momentos[i-1]
-                print(parcela_momento_i)
+                #print(parcela_momento_i)
                 # MOMENTO APOIO DA DIREITA
                 parcela_momento_i_mais1 = -1 * self.lista_momentos[i + 1-1]
 
@@ -279,13 +279,13 @@ class Eq3momentos(Vigahiperestatica):
 
             elif i ==1:
                 if self.viga.balanco_esquerdo == True:
-                    print('xxxx')
-                    print(parcela_carga, parcela_momento_i, parcela_momento_i_mais1)
+                    #print('xxxx')
+                    #print(parcela_carga, parcela_momento_i, parcela_momento_i_mais1)
 
                     # REAÇÃO DE APOIO DA ESQUERDA
                     Ri = (parcela_carga - parcela_momento_i -parcela_momento_i_mais1) / \
                                self.viga.lista_comprimentos[i]
-                    print('o RI é', Ri)
+                    #print('o RI é', Ri)
                     Ri_mais1 = self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i] - Ri
                     Ri = Ri +self.viga.lista_comprimentos[i-1]*self.viga.lista_cargas_q[i-1]
                 if not self.viga.balanco_esquerdo == True:
@@ -308,16 +308,16 @@ class Eq3momentos(Vigahiperestatica):
                 lista_reacoes_esquerda_direita.append(Ri_mais1)
                 self.matriz_reacoes.append(lista_reacoes_esquerda_direita)
             elif i ==self.viga.numero_apoios-1:
-                print('xxxxxxxxxx')
+                #print('xxxxxxxxxx')
                 if self.viga.balanco_direito == True:
-                    print(parcela_carga, parcela_momento_i, parcela_momento_i_mais1)
+                    #print(parcela_carga, parcela_momento_i, parcela_momento_i_mais1)
 
-                    print(Ri_mais1)
+                    #print(Ri_mais1)
                     # REAÇÃO DE APOIO DA ESQUERDA
                     Ri_mais1 = (parcela_carga + parcela_momento_i + parcela_momento_i_mais1) / \
                                self.viga.lista_comprimentos[i]
                     Ri = self.viga.lista_cargas_q[i] * self.viga.lista_comprimentos[i] - Ri_mais1
-                    print(Ri_mais1)
+                    #print(Ri_mais1)
                     Ri_mais1 = Ri_mais1 + self.viga.lista_comprimentos[self.viga.numero_apoios]*self.viga.lista_cargas_q[self.viga.numero_apoios]
 
                 elif self.viga.balanco_direito == False:
@@ -340,7 +340,7 @@ class Eq3momentos(Vigahiperestatica):
 
 
 
-            print(self.matriz_reacoes)
+            #print(self.matriz_reacoes)
         # SOMA A REAÇÃO DA ESQUERDA COM A REAÇÃO DA DIREITA
 
         for i in range(0, len(self.matriz_reacoes)):
@@ -375,7 +375,7 @@ class Eq3momentos(Vigahiperestatica):
         print('-----------REAÇÕES DE APOIO------------')
         for i in range(0, len(self.lista_reacoes)):
             print(f'A reação do apoio {i+1} é {self.lista_reacoes[i]} kN')
-            print(' ')
+
 
     def apply(self):
         self.equacao_3_momentos()

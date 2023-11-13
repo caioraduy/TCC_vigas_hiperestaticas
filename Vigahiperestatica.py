@@ -8,7 +8,7 @@ from Calcula_momentos_por_trecho import *
 
 class Vigahiperestatica:
     def __init__(self, lista_comprimentos =None,lista_cargas_q= None, carga_q = None, lista_reações = None, b = None, h= None,
-                 fck= None, balanco_esquerdo = False, balanco_direito= False,
+                 fck= None, alfae= None, balanco_esquerdo = False, balanco_direito= False,
                  q_balanco_esquerdo = None, q_balanco_direito = None):
 
         self.b = b
@@ -26,6 +26,7 @@ class Vigahiperestatica:
         self.balanco_direito = balanco_direito
         self.numero_apoios = 0
         self.comprimento_total= 0
+        self.alfae = alfae
     def calcular_numero_apoios(self):
         print(len(self.lista_comprimentos))
         if self.balanco_esquerdo == False and self.balanco_direito ==False:
@@ -42,7 +43,14 @@ class Vigahiperestatica:
         self.I = I
     def calculo_modulo_elasticidade(self):
         # de 20 até 50 MPa
-        Eci = 0.9 * 5600 * math.sqrt(self.fck)
+        if self.alfae == None:
+            self.alfae = 0.9
+        if self.fck <= 50:
+            Eci = self.alfae * 5600 * math.sqrt(self.fck)
+        # fck de 55MPa a 80 MPa
+        elif self.fck> 50:
+            Eci = 21,5*10^3* self.alfae*(self.fck/10+1,25)^(1/3)
+
         alfa =  0.8 + 0.2 * self.fck/80
         self.Ecs = (Eci * alfa)
         print(f'O Ecs é {self.Ecs}')
