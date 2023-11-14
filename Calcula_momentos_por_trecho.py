@@ -339,9 +339,6 @@ class Calcula_momentos_por_trecho(Vigahiperestatica):
                 self.scatter_y_momento.append(momento_fletor)
                 self.scatter_y_cortante.append(cortante)
             EqM += 1
-        #print(self.scatter_x)
-
-
         plt.figure(figsize=(10, 4))
         plt.gca().invert_yaxis()
         plt.plot(self.scatter_x, self.scatter_y_momento)

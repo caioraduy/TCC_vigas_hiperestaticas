@@ -10,7 +10,6 @@ class Vigahiperestatica:
     def __init__(self, lista_comprimentos =None,lista_cargas_q= None, carga_q = None, lista_reações = None, b = None, h= None,
                  fck= None, alfae= None, balanco_esquerdo = False, balanco_direito= False,
                  q_balanco_esquerdo = None, q_balanco_direito = None):
-
         self.b = b
         self.h = h
         self.lista_comprimentos = lista_comprimentos

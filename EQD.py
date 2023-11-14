@@ -544,6 +544,7 @@ class Contexto:
 
 
 if __name__== '__main__':
+    #rodando
     # O USUÁRIO VAI ENTRAR COM OS COMPRIMENTOS DE CADA TRECHO E O VALOR DA CARGA DISTRIBUÍDA
     viga = Vigahiperestatica(lista_comprimentos=[10,10,10],carga_q=10, b= 0.2, h=0.3, fck = 30)
     #print(viga.I)

@@ -331,18 +331,6 @@ class Eq3momentos(Vigahiperestatica):
                 lista_reacoes_esquerda_direita.append(Ri_mais1)
                 self.matriz_reacoes.append(lista_reacoes_esquerda_direita)
 
-
-
-
-
-
-
-
-
-
-            #print(self.matriz_reacoes)
-        # SOMA A REAÇÃO DA ESQUERDA COM A REAÇÃO DA DIREITA
-
         for i in range(0, len(self.matriz_reacoes)):
             # SE I ==0 E A VIGA TEM MAIS DE 2 TRAMOS (MAIS DE 3 APOIOS)
             if i == 0 and self.viga.numero_apoios > 3:

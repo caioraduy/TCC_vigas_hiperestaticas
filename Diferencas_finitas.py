@@ -223,9 +223,6 @@ class Diferencas_finitas(Vigahiperestatica):
             #print(x)
             #print(self.viga.lista_comprimentos[x])
             comprimento_acumulado += self.viga.lista_comprimentos[x]
-            #print('O comprimento acumulado é,',comprimento_acumulado)
-
-
 
         self.resolve_sistema_para_descobrir_deformaçao_nos_pontos()
         self.cria_lista_deflexoes()
